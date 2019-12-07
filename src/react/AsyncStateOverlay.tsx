@@ -4,6 +4,7 @@ import classnames from "classnames";
 import {CSSProperties} from "react";
 import {AsyncState} from "../AsyncStateTypes";
 
+// eslint-disable-next-line
 type ReactComponent<P = any> = React.ComponentClass<P> | React.FunctionComponent<P>;
 
 type PropsOf<C extends ReactComponent | keyof JSX.IntrinsicElements> = C extends ReactComponent<infer P> ? P : (C extends keyof JSX.IntrinsicElements ? JSX.IntrinsicElements[C] : never);
@@ -20,7 +21,7 @@ export type AsyncStateOverlayProps<T, C extends ReactComponent | keyof JSX.Intri
 };
 
 const AsyncStateOverlay = function <T, C extends ReactComponent | keyof JSX.IntrinsicElements = "div">(props: AsyncStateOverlayProps<T, C>): JSX.Element {
-    let {component, state, debug, children, className, style, ...otherProps} = props;
+    const {component, state, debug, children, className, style, ...otherProps} = props;
 
     return React.createElement(component || "div", {
         className: classnames(className, "ras-overlay"),
@@ -29,7 +30,7 @@ const AsyncStateOverlay = function <T, C extends ReactComponent | keyof JSX.Intr
             ...(style || {}),
         },
         ...otherProps
-    } as any, [
+    }, [
         debug && <div className={"ras-debug-menu"} style={{
             position: "absolute",
             padding: "5px",

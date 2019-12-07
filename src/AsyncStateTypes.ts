@@ -51,7 +51,7 @@ export interface AsyncStateRefreshing<T> extends AsyncState<T> {
     readonly submitType: "refresh";
 }
 
-export interface AsyncStatePristine<T> extends  AsyncState<T> {
+export interface AsyncStatePristine<T> extends AsyncState<T> {
     readonly pristine: true;
     readonly pending: false;
     readonly pendingAt: null;

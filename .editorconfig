@@ -1,0 +1,8 @@
+[root]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+
+ij_typescript_align_imports = true
+ij_typescript_align_var_statements = 1
+ij_typescript_align_object_properties = 1

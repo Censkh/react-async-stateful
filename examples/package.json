@@ -3,8 +3,10 @@
     "react": "^16.12.0",
     "react-async-stateful": "file://../",
     "react-dom": "^16.12.0",
+    "react-redux": "^7.1.3",
     "react-router": "^5.1.2",
-    "react-router-dom": "^5.1.2"
+    "react-router-dom": "^5.1.2",
+    "redux": "^4.0.4"
   },
   "devDependencies": {
     "@types/react": "^16.9.15",

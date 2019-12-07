@@ -20,7 +20,7 @@ export const resolve = <T>(state: AsyncState<T>, value: T): AsyncStateResolved<T
         resolved: true,
         resolvedAt: Date.now(),
         value: value
-    }
+    };
 };
 
 export const reject = <T>(state: AsyncState<T>, error: Error): AsyncStateRejected<T> => {
@@ -33,7 +33,7 @@ export const reject = <T>(state: AsyncState<T>, error: Error): AsyncStateRejecte
         rejectedAt: Date.now(),
         resolved: false,
         value: state.defaultValue ?? undefined,
-    }
+    };
 };
 
 export const submit = <T>(state: AsyncState<T>): AsyncStateSubmitting<T> => {
@@ -59,13 +59,6 @@ export const refresh = <T>(state: AsyncState<T>): AsyncStateRefreshing<T> => {
     };
 };
 
-export const reset = <T>(state: AsyncState<T>): AsyncStatePristine<T> => {
-    return {
-        ...state,
-        ...create(state.defaultValue)
-    };
-};
-
 export const create = <T>(defaultValue?: T): AsyncStatePristine<T> => {
     return Object.freeze({
         defaultValue: defaultValue,
@@ -80,6 +73,13 @@ export const create = <T>(defaultValue?: T): AsyncStatePristine<T> => {
         error: undefined,
         submitType: undefined,
     });
+};
+
+export const reset = <T>(state: AsyncState<T>): AsyncStatePristine<T> => {
+    return {
+        ...state,
+        ...create(state.defaultValue)
+    };
 };
 
 export const isRejected = <T>(state: AsyncState<T>): state is AsyncStateRejected<T> => {
