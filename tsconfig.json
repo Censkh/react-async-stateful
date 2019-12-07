@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "moduleResolution": "node",
+    "module": "esnext",
+    "strict": true,
+    "declaration": true,
+    "jsx": "react"
+  },
+  "include": [
+    "src"
+  ]
+}
