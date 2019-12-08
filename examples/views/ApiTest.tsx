@@ -1,7 +1,7 @@
 import * as React from "react";
 import {useCallback} from "react";
-import * as AsyncState from "react-async-stateful";
-import {useAsyncState} from "react-async-stateful";
+import * as AsyncState from "../..";
+import {useAsyncState} from "../..";
 import {FoodItem, getList} from "../api";
 
 const ApiTest: React.FC = (props) => {

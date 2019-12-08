@@ -12,7 +12,8 @@
     "build:esm": "tsc --module es2015 --target es5 --outDir esm",
     "build:cjs": "tsc --module commonjs --target es5 --outDir cjs",
     "build:watch": "npm-run-all -p \"build:esm -- -w\" \"build:cjs -- -w\"",
-    "examples:build": "sh examples/build.sh"
+    "examples:start": "parcel examples/index.html --out-dir ./public",
+    "examples:build": "parcel build examples/index.html --out-dir ./public"
   },
   "keywords": [
     "typescript",

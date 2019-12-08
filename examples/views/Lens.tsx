@@ -1,8 +1,8 @@
 import * as React from "react";
 import {useCallback, useState} from "react";
-import {lens, useAsyncState} from "react-async-stateful";
+import {lens, useAsyncState} from "../..";
 import {ComplexData, getComplexData} from "../api";
-import {isResolved, match} from "../../../src";
+import {isResolved, match} from "../../src";
 
 const Lens: React.FC = () => {
     const [data, _, updateData] = useAsyncState<ComplexData>();
@@ -34,9 +34,9 @@ const Lens: React.FC = () => {
             <input disabled={data.pending} type={"range"} value={level} min={0} max={9} onChange={e => setLevel(parseInt(e.target.value))}/>
         </div>}
 
-        <b>List of {list.value.length} value(s):</b>
+        <b>List of {list.value?.length} value(s):</b>
         <ul>
-            {list.value.map((value, index) => {
+            {list.value?.map((value, index) => {
                 return <li key={index}>
                         <span style={{
                             width: "26px",

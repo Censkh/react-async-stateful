@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useCallback, useState} from "react";
-import {AsyncStateOverlay, useAsyncState} from "react-async-stateful/react";
+import {AsyncStateOverlay, useAsyncState} from "../..";
 import {FoodItem, getList} from "../api";
 
 const DebugOverlay: React.FC = () => {
@@ -15,7 +15,7 @@ const DebugOverlay: React.FC = () => {
             return response.data;
         }, {refresh: true});
 
-        console.log(`Took ${resolvedAt - sent}ms`)
+        console.log(`Took ${(resolvedAt || 0) - sent}ms`);
     }, [itemCount]);
 
     return <div>
@@ -35,9 +35,9 @@ const DebugOverlay: React.FC = () => {
             <button disabled={list.pending} onClick={fetch}>Fetch</button>
 
             <br/>
-            <b>List of {list.value.length} value(s):</b> {list.pending && <i>Loading...</i>}
+            <b>List of {list.value?.length} value(s):</b> {list.pending && <i>Loading...</i>}
             <ul>
-                {list.value.map((value, index) => {
+                {list.value?.map((value, index) => {
                     return <li key={index}>
                         <span style={{
                             width: "26px",
