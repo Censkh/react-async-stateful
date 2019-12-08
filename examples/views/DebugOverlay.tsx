@@ -4,7 +4,7 @@ import {AsyncStateOverlay, useAsyncState} from "../..";
 import {FoodItem, getList} from "../api";
 
 const DebugOverlay: React.FC = () => {
-    const [list, _, updateList] = useAsyncState<FoodItem[]>([]);
+    const [list, _, updateList] = useAsyncState([] as FoodItem[]);
     const [itemCount, setItemCount] = useState(1);
     const [debug, setDebug] = useState(false);
 

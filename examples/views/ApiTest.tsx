@@ -5,7 +5,7 @@ import {useAsyncState} from "../..";
 import {FoodItem, getList} from "../api";
 
 const ApiTest: React.FC = (props) => {
-    const [list, _, updateList] = useAsyncState<FoodItem[]>([]);
+    const [list, _, updateList] = useAsyncState([] as FoodItem[]);
     const submit = useCallback((refresh: boolean) => {
         updateList(async () => {
             const response = await getList();

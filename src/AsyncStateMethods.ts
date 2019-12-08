@@ -7,8 +7,9 @@ import {
     AsyncStateResolved,
     AsyncStateSettled,
     AsyncStateStatus,
-    AsyncStateSubmitting,
+    AsyncStateSubmitting, MatchCases,
 } from "./AsyncStateTypes";
+import {NotFunction} from "./Utils";
 
 export const getStatus = <T>(state: AsyncState<T>): AsyncStateStatus => {
     if (state.pristine) return "pristine";
@@ -131,18 +132,7 @@ export const isSettled = <T>(state: AsyncState<T>): state is AsyncStateSettled<T
     return state.settled;
 };
 
-type StatusKeys<T, V> = {
-    [K in AsyncStateStatus]?: K extends "resolved" ? V | ((value: T) => V) : (
-        K extends "rejected" ? V | ((error: Error) => V) : V
-        );
-};
-
-type NotFunction = any & {
-    (): never;
-    call: never;
-}
-
-export const match = <T, V extends NotFunction>(state: AsyncState<T>, cases: StatusKeys<T, V>, defaultValue: V): V => {
+export const match = <T, V extends NotFunction>(state: AsyncState<T>, cases: MatchCases<T, V>, defaultValue: V): V => {
     const status = getStatus(state);
     if (status in cases) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

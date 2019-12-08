@@ -74,3 +74,9 @@ export interface AsyncStatePristine<T> extends AsyncState<T> {
 }
 
 export type AsyncStateStatus = "pristine" | "submitting" | "refreshing" | "rejected" | "resolved" | "invalid";
+
+export type MatchCases<T, V> = {
+    [K in AsyncStateStatus]?: K extends "resolved" ? V | ((value: T) => V) : (
+        K extends "rejected" ? V | ((error: Error) => V) : V
+        );
+};
