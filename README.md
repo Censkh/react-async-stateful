@@ -8,7 +8,7 @@ We have our
 import {useAsyncState} from "react-async-stateful";
 
 const AsyncComponent = (props) => {
-    const [submitResult, setSubmitResult, updateSubmitResult] = useAsyncState();    
+    const [submitResult, _, updateSubmitResult] = useAsyncState();    
 
     const submit = useCallback(() => {
         const {resolvedAt} = updateSubmitResult(async () => {
@@ -18,6 +18,9 @@ const AsyncComponent = (props) => {
         console.log(`API responded at: ${new Date(resolvedAt).toString()}`)
     });
     
-    return <button onClick={submit}>Call the API!</button>;
+    return <div>
+        <button onClick={submit}>Call the API!</button>
+        {submitResult.resolved && <div>The response: {JSON.stringify(submitResult.value)}</div>}
+    </div>;
 };
 ```

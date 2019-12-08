@@ -1,10 +1,31 @@
 import {
+    AsyncState,
+    AsyncStatePending,
+    AsyncStatePristine,
     AsyncStateRefreshing,
     AsyncStateRejected,
     AsyncStateResolved,
+    AsyncStateSettled,
+    AsyncStateStatus,
     AsyncStateSubmitting,
-    AsyncState, AsyncStatePristine, AsyncStatePending
 } from "./AsyncStateTypes";
+
+export const getStatus = <T>(state: AsyncState<T>): AsyncStateStatus => {
+    if (state.pristine) return "pristine";
+    if (state.pending && state.submitType === "refresh") {
+        return "refreshing";
+    }
+    if (state.pending && state.submitType === "submit") {
+        return "submitting";
+    }
+    if (state.resolved) {
+        return "resolved";
+    }
+    if (state.rejected) {
+        return "rejected";
+    }
+    return "invalid";
+};
 
 export const resolve = <T>(state: AsyncState<T>, value: T): AsyncStateResolved<T> => {
     if (value === undefined) {
@@ -19,6 +40,8 @@ export const resolve = <T>(state: AsyncState<T>, value: T): AsyncStateResolved<T
         rejected: false,
         resolved: true,
         resolvedAt: Date.now(),
+        settled: true,
+        settledAt: Date.now(),
         value: value
     };
 };
@@ -31,6 +54,8 @@ export const reject = <T>(state: AsyncState<T>, error: Error): AsyncStateRejecte
         pristine: false,
         rejected: true,
         rejectedAt: Date.now(),
+        settled: true,
+        settledAt: Date.now(),
         resolved: false,
         value: state.defaultValue ?? undefined,
     };
@@ -44,6 +69,7 @@ export const submit = <T>(state: AsyncState<T>): AsyncStateSubmitting<T> => {
         pristine: false,
         rejected: false,
         resolved: false,
+        settled: false,
         value: state.defaultValue ?? undefined,
         submitType: "submit"
     };
@@ -55,12 +81,13 @@ export const refresh = <T>(state: AsyncState<T>): AsyncStateRefreshing<T> => {
         pristine: false,
         pending: true,
         pendingAt: Date.now(),
+        settled: false,
         submitType: "refresh"
     };
 };
 
 export const create = <T>(defaultValue?: T): AsyncStatePristine<T> => {
-    return Object.freeze({
+    return {
         defaultValue: defaultValue,
         pristine: true,
         resolved: false,
@@ -69,10 +96,12 @@ export const create = <T>(defaultValue?: T): AsyncStatePristine<T> => {
         rejectedAt: null,
         pending: false,
         pendingAt: null,
+        settled: false,
+        settledAt: null,
         value: defaultValue ?? undefined,
         error: undefined,
         submitType: undefined,
-    });
+    };
 };
 
 export const reset = <T>(state: AsyncState<T>): AsyncStatePristine<T> => {
@@ -96,4 +125,34 @@ export const isResolved = <T>(state: AsyncState<T>): state is AsyncStateResolved
 
 export const isPristine = <T>(state: AsyncState<T>): state is AsyncStateRejected<T> => {
     return state.pristine;
+};
+
+export const isSettled = <T>(state: AsyncState<T>): state is AsyncStateSettled<T> => {
+    return state.settled;
+};
+
+type StatusKeys<T, V> = {
+    [K in AsyncStateStatus]?: K extends "resolved" ? V | ((value: T) => V) : (
+        K extends "rejected" ? V | ((error: Error) => V) : V
+        );
+};
+
+type NotFunction = any & {
+    (): never;
+    call: never;
+}
+
+export const match = <T, V extends NotFunction>(state: AsyncState<T>, cases: StatusKeys<T, V>, defaultValue: V): V => {
+    const status = getStatus(state);
+    if (status in cases) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const value = cases[status] as any;
+        if (status === "resolved") {
+            return typeof value === "function" ? value(state.value) : value;
+        } else if (status === "rejected") {
+            return typeof value === "function" ? value(state.error) : value;
+        }
+        return value;
+    }
+    return defaultValue;
 };

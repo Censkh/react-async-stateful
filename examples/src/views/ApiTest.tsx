@@ -1,13 +1,8 @@
 import * as React from "react";
-import {useAsyncState} from "react-async-stateful";
-import * as AsyncState from "react-async-stateful";
 import {useCallback} from "react";
-import {getList} from "../api";
-
-interface FoodItem {
-    icon: string;
-    name: string;
-}
+import * as AsyncState from "react-async-stateful";
+import {useAsyncState} from "react-async-stateful";
+import {FoodItem, getList} from "../api";
 
 const ApiTest: React.FC = (props) => {
     const [list, _, updateList] = useAsyncState<FoodItem[]>([]);

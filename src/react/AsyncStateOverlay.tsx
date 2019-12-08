@@ -1,8 +1,9 @@
 import * as React from "react";
+import {CSSProperties, useCallback} from "react";
 import classnames from "classnames";
 
-import {CSSProperties} from "react";
 import {AsyncState} from "../AsyncStateTypes";
+import {getStatus} from "../AsyncStateMethods";
 
 // eslint-disable-next-line
 type ReactComponent<P = any> = React.ComponentClass<P> | React.FunctionComponent<P>;
@@ -22,6 +23,15 @@ export type AsyncStateOverlayProps<T, C extends ReactComponent | keyof JSX.Intri
 
 const AsyncStateOverlay = function <T, C extends ReactComponent | keyof JSX.IntrinsicElements = "div">(props: AsyncStateOverlayProps<T, C>): JSX.Element {
     const {component, state, debug, children, className, style, ...otherProps} = props;
+
+    const sendToConsole = useCallback(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).__debug = state;
+        console.warn("Updated window.__debug with value:");
+        console.warn({
+            state: state,
+        });
+    }, [state]);
 
     return React.createElement(component || "div", {
         className: classnames(className, "ras-overlay"),
@@ -44,6 +54,9 @@ const AsyncStateOverlay = function <T, C extends ReactComponent | keyof JSX.Intr
             textShadow: "1px 1px #000",
         }}>
             <b>Debug Menu</b>
+            <p>Current status: <span>{getStatus(state)}</span></p>
+            <button onClick={sendToConsole}>Send to Console</button>
+            <button onClick={sendToConsole}>Reset</button>
         </div>,
         children && children(state),
     ].filter(Boolean));

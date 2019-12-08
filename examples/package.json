@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "parcel build src/index.html --out-dir ../public"
+  },
   "dependencies": {
     "react": "^16.12.0",
     "react-async-stateful": "file://../",

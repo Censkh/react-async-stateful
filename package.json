@@ -10,7 +10,9 @@
     "lint:fix": "eslint --fix --ext .tsx,.ts src",
     "build": "npm run build:esm && npm run build:cjs",
     "build:esm": "tsc --module es2015 --target es5 --outDir esm",
-    "build:cjs": "tsc --module commonjs --target es5 --outDir cjs"
+    "build:cjs": "tsc --module commonjs --target es5 --outDir cjs",
+    "build:watch": "npm-run-all -p \"build:esm -- -w\" \"build:cjs -- -w\"",
+    "examples:build": "sh examples/build.sh"
   },
   "keywords": [
     "typescript",
@@ -26,7 +28,8 @@
     "index.js",
     "index.d.ts",
     "esm/",
-    "cjs/"
+    "cjs/",
+    "react/"
   ],
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -41,10 +44,12 @@
     "eslint": "^6.7.2",
     "eslint-plugin-react": "^7.17.0",
     "gh-pages": "^2.1.1",
+    "npm-run-all": "^4.1.5",
     "typescript": "^3.7.3"
   },
   "dependencies": {
-    "classnames": "^2.2.6"
+    "classnames": "^2.2.6",
+    "react": "^16.12.0"
   },
   "repository": "https://github.com/Censkh/react-async-stateful"
 }

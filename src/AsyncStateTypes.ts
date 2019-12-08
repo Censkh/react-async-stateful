@@ -9,13 +9,20 @@ export interface AsyncState<T> {
     readonly resolvedAt: number | null;
     readonly rejected: boolean;
     readonly rejectedAt: number | null;
+    readonly settled: boolean;
+    readonly settledAt: number | null;
     readonly value: T | undefined;
     readonly error: Error | undefined;
     readonly submitType: AsyncStateSubmitType | undefined;
 }
 
-export interface AsyncStateResolved<T> extends AsyncState<T> {
+export interface AsyncStateSettled<T> extends AsyncState<T> {
     readonly pristine: false;
+    readonly settled: true;
+    readonly settledAt: number;
+}
+
+export interface AsyncStateResolved<T> extends AsyncStateSettled<T> {
     readonly resolved: true;
     readonly resolvedAt: number;
     readonly rejected: false;
@@ -24,8 +31,7 @@ export interface AsyncStateResolved<T> extends AsyncState<T> {
     readonly error: undefined;
 }
 
-export interface AsyncStateRejected<T> extends AsyncState<T> {
-    readonly pristine: false;
+export interface AsyncStateRejected<T> extends AsyncStateSettled<T> {
     readonly resolved: false;
     readonly rejected: true;
     readonly rejectedAt: number;
@@ -33,21 +39,23 @@ export interface AsyncStateRejected<T> extends AsyncState<T> {
     readonly error: Error;
 }
 
-export interface AsyncStateSubmitting<T> extends AsyncState<T> {
+export interface AsyncStatePending<T> extends AsyncState<T> {
     readonly pristine: false;
-    readonly resolved: false;
-    readonly rejected: false;
     readonly pending: true;
     readonly pendingAt: number;
+    readonly submitType: AsyncStateSubmitType;
+    readonly settled: false;
+}
+
+export interface AsyncStateSubmitting<T> extends AsyncStatePending<T> {
+    readonly resolved: false;
+    readonly rejected: false;
     readonly submitType: "submit";
 }
 
-export interface AsyncStateRefreshing<T> extends AsyncState<T> {
-    readonly pristine: false;
+export interface AsyncStateRefreshing<T> extends AsyncStatePending<T> {
     readonly resolved: boolean;
     readonly rejected: boolean;
-    readonly pending: true;
-    readonly pendingAt: number;
     readonly submitType: "refresh";
 }
 
@@ -59,13 +67,10 @@ export interface AsyncStatePristine<T> extends AsyncState<T> {
     readonly resolvedAt: null;
     readonly rejected: false;
     readonly rejectedAt: null;
+    readonly settled: false;
+    readonly settledAt: null;
     readonly error: undefined;
     readonly submitType: undefined;
 }
 
-export interface AsyncStatePending<T> extends AsyncState<T> {
-    readonly pending: true;
-    readonly pendingAt: number;
-    readonly submitType: AsyncStateSubmitType;
-    readonly pristine: false;
-}
+export type AsyncStateStatus = "pristine" | "submitting" | "refreshing" | "rejected" | "resolved" | "invalid";
