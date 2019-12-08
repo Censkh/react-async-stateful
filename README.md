@@ -72,7 +72,22 @@ The `useAsyncState` hook returns:
   asyncState.error    === Error // error instance
     ```
 
+## Submit vs Refresh
 
+The default behaviour is that when the `updateAsyncState` function is called, the current value and errors are wiped and the state is put into an empty pending state.
+
+This can be undesirable if you are merely refreshing data and want to keep the previous value whilst the new request is being made. To fix this you can pass the `refresh` option so that these are kept:
+
+```jsx harmony
+const refreshList = () => {
+    updateList(async () => {
+        const response = await api.get("list");
+        return response.data;
+    }, {refresh: true} /* <-- keep the current value whilst we are pending */);
+};
+```
+
+_whether submit or refresh were used is stored as `submitType` on the async state object_
 
 ## The AsyncState object
 
@@ -111,6 +126,26 @@ console.log(state.value); // world
 | `value`        | `T` or `undefined`                    | the currently resolved value, if `undefined` we are not resolved    
 | `error`        | `Error` or `undefined`                | the reason for the rejection, if `undefined` we are not rejected        
 | `submitType`   | `AsyncStateSubmitType` or `undefined` | what kind of submit was it? can be either `submit` or `refresh`                        
+
+## Typescript Utils
+
+Typescript has a cool feature allowing you to narrow the type of an object using methods. Supplied are some methods that will make null checking your async state objects easier:
+
+```typescript jsx
+import {isResolved, useAsyncstate} from "react-async-stateful";
+
+const [asyncState, _, updateAsyncState] = useAsyncstate<UserData>();
+
+runUpdateThatWillHappenInTheFuture();
+
+/* Typescript will complain about the line below 😫 
+   Even though our library provides a contract that if resolved is true
+   `value` cannot be undefined the typescript compiler has no way of knowing this! */
+// return asyncState.resolved ? <div>{asyncState.value.id}</div> : "Loading";
+
+// Use `isResolved` and the compiler will be happy that it is definitely present:
+return isResolved(asyncState) ? <div>{asyncState.value.id}</div> : "Loading";
+```
 
 ## To-Do
 
