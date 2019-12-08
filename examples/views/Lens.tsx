@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useCallback, useState} from "react";
-import {lens, useAsyncState} from "../..";
+import {unstable__lens, useAsyncState} from "../..";
 import {ComplexData, getComplexData} from "../api";
 import {isResolved, match} from "../../src";
 
@@ -15,7 +15,7 @@ const Lens: React.FC = () => {
         }, {refresh: true});
     }, []);
 
-    const list = lens(data, (value) => value.levels[value.currentLevel] ?? [], []);
+    const list = unstable__lens(data, (value) => value.levels[value.currentLevel] ?? [], []);
 
     return <div>
         <h3>Lens</h3>

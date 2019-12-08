@@ -39,7 +39,7 @@ const AsyncStateOverlay = function <T, C extends ReactComponent | keyof JSX.Intr
             position: "relative",
             ...(style || {}),
         },
-        ...otherProps
+        ...otherProps,
     }, [
         debug && <div className={"ras-debug-menu"} style={{
             position: "absolute",

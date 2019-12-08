@@ -43,7 +43,7 @@ export const resolve = <T>(state: AsyncState<T>, value: T): AsyncStateResolved<T
         resolvedAt: Date.now(),
         settled: true,
         settledAt: Date.now(),
-        value: value
+        value: value,
     };
 };
 
@@ -72,7 +72,7 @@ export const submit = <T>(state: AsyncState<T>): AsyncStateSubmitting<T> => {
         resolved: false,
         settled: false,
         value: state.defaultValue ?? undefined,
-        submitType: "submit"
+        submitType: "submit",
     };
 };
 
@@ -83,7 +83,7 @@ export const refresh = <T>(state: AsyncState<T>): AsyncStateRefreshing<T> => {
         pending: true,
         pendingAt: Date.now(),
         settled: false,
-        submitType: "refresh"
+        submitType: "refresh",
     };
 };
 
@@ -108,7 +108,7 @@ export const create = <T>(defaultValue?: T): AsyncStatePristine<T> => {
 export const reset = <T>(state: AsyncState<T>): AsyncStatePristine<T> => {
     return {
         ...state,
-        ...create(state.defaultValue)
+        ...create(state.defaultValue),
     };
 };
 

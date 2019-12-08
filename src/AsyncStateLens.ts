@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {AsyncState} from "./AsyncStateTypes";
 
-export const lens = <V, T>(state: AsyncState<T>, lens: (value: T) => V, defaultValue?: V): AsyncState<V> => {
+export const unstable__lens = <V, T>(state: AsyncState<T>, lens: (value: T) => V, defaultValue?: V): AsyncState<V> => {
     return new Proxy(state, {
         get(target: AsyncState<T>, key: keyof AsyncState<T>): any {
             const original = target[key];
@@ -17,6 +17,6 @@ export const lens = <V, T>(state: AsyncState<T>, lens: (value: T) => V, defaultV
                 }
             }
             return original;
-        }
+        },
     }) as any;
 };
