@@ -1,5 +1,4 @@
+#!/bin/sh
 cd examples
-if [[ -v CI ]]; then
-  npm ci
-fi
+npm ci
 npm run build
