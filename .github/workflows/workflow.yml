@@ -29,6 +29,9 @@ jobs:
       run: |
         npm run examples:build
     - name: examples deploy
-      uses: "maxheld83/ghpages@v0.2.1"
-      env:
-        BUILD_DIR: "public/"
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.GAP_TOKEN }}
+        BASE_BRANCH: master
+        BRANCH: gh-pages
+        FOLDER: public
