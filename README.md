@@ -26,6 +26,10 @@ const AsyncComponent = (props) => {
 };
 ```
 
+### Demos
+
+- [API Example](https://react-async-stateful.netlify.com/api)
+
 ## useAsyncState hook
 
 The `useAsyncState` hook returns:

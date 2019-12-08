@@ -3,6 +3,7 @@ import {useCallback} from "react";
 import * as AsyncState from "../..";
 import {useAsyncState} from "../..";
 import {FoodItem, getList} from "../api";
+import {Link} from "react-router-dom";
 
 const ApiTest: React.FC = (props) => {
     const [list, _, updateList] = useAsyncState([] as FoodItem[]);
@@ -21,6 +22,7 @@ const ApiTest: React.FC = (props) => {
 
     return <div>
         <h3>Api Test</h3>
+        <a href={"https://github.com/Censkh/react-async-stateful/blob/master/examples/views/ApiTest.tsx"}>Source Code</a>
         <p><b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span></p>
         <button disabled={list.pending} onClick={() => submit(false)}>Submit</button>
         <button disabled={list.pending} onClick={() => submit(true)}>Refresh</button>
@@ -31,7 +33,10 @@ const ApiTest: React.FC = (props) => {
             <ul>
                 {list.value.map((value, index) => {
                     return <li key={index}>
-                        <span style={{width: "26px", display: "inline-block"}}>{value.icon}</span><span>{value.name}</span>
+                            <span style={{
+                                width: "26px",
+                                display: "inline-block",
+                            }}>{value.icon}</span><span>{value.name}</span>
                     </li>;
                 })}
             </ul>
