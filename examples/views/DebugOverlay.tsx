@@ -20,6 +20,8 @@ const DebugOverlay: React.FC = () => {
 
     return <div>
         <h3>Debug Overlay</h3>
+        <a href={"https://github.com/Censkh/react-async-stateful/blob/master/examples/views/DebugOverlay.tsx"}>Source Code</a>
+
         <AsyncStateOverlay debug={debug}
                            state={list}
                            style={{border: "1px solid #ddd", padding: "5px", width: "500px"}}>{list => <div>
