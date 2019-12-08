@@ -3,6 +3,7 @@ import ApiTest from "./ApiTest";
 import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
 import Lens from "./Lens";
 import DebugOverlay from "./DebugOverlay";
+import Home from "./Home";
 
 const App: React.FC = () => {
     return <div>
@@ -19,6 +20,7 @@ const App: React.FC = () => {
                 <Route path={"/api"} component={ApiTest}/>
                 <Route path={"/debug-overlay"} component={DebugOverlay}/>
                 <Route path={"/lens"} component={Lens}/>
+                <Route path={"*"} component={Home}/>
             </Switch>
         </BrowserRouter>
     </div>;
