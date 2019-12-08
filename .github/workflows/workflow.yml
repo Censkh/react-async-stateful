@@ -31,7 +31,7 @@ jobs:
     - name: examples deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
-        ACCESS_TOKEN: ${{ secrets.GAP_TOKEN }}
+        ACCESS_TOKEN: ${{ secrets.GH_PAT }}
         BASE_BRANCH: master
         BRANCH: gh-pages
         FOLDER: public
