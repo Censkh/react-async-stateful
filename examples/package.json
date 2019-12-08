@@ -1,22 +1,9 @@
 {
   "scripts": {
-    "start": "parcel src/index.html",
-    "build": "parcel build src/index.html --out-dir ../public"
+    "start": "npx parcel src/index.html",
+    "build": "npx parcel build src/index.html --out-dir ../public"
   },
   "dependencies": {
-    "react": "^16.12.0",
-    "react-async-stateful": "file://../",
-    "react-dom": "^16.12.0",
-    "react-redux": "^7.1.3",
-    "react-router": "^5.1.2",
-    "react-router-dom": "^5.1.2",
-    "redux": "^4.0.4"
-  },
-  "devDependencies": {
-    "@types/react": "^16.9.15",
-    "@types/react-dom": "^16.9.4",
-    "@types/react-router": "^5.1.3",
-    "@types/react-router-dom": "^5.1.3",
-    "parcel-bundler": "^1.12.4"
+    "react-async-stateful": "file://../"
   }
 }
