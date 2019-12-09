@@ -1,8 +1,6 @@
 # [react-async-stateful](https://github.com/Censkh/react-async-stateful/) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Censkh/react-async-stateful/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-async-stateful.svg?style=flat)](https://www.npmjs.com/package/react-async-stateful)
 
-## What is it?
-
-A consistent method of storing state about async calls with the goal of reducing boilerplate in react code
+A consistent method of storing state for async calls to reduce boilerplate in react code
 
 ```jsx harmony
 // plain js
