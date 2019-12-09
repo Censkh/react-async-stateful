@@ -24,7 +24,7 @@ const AsyncComponent = (props) => {
 };
 ```
 
-### Demos
+## Demos
 
 - [API Example](https://react-async-stateful.netlify.com/api)
 
