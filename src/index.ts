@@ -1,6 +1,6 @@
-export * from "./AsyncStateMethods";
-export * from "./AsyncStateTypes";
-export * from "./AsyncStateLens";
+export * from "./Methods";
+export * from "./Types";
+export * from "./Lens";
 export * from "./Utils";
 
 export * from "./react";

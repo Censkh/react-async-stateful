@@ -2,8 +2,8 @@ import * as React from "react";
 import {CSSProperties, useCallback} from "react";
 import classnames from "classnames";
 
-import {AsyncState} from "../AsyncStateTypes";
-import {getStatus} from "../AsyncStateMethods";
+import {AsyncState} from "../Types";
+import {getStatus} from "../Methods";
 
 // eslint-disable-next-line
 type ReactComponent<P = any> = React.ComponentClass<P> | React.FunctionComponent<P>;

@@ -1,6 +1,6 @@
 import {Dispatch, SetStateAction, useMemo, useState} from "react";
-import {AsyncState} from "../AsyncStateTypes";
-import * as AsyncStateMethods from "../AsyncStateMethods";
+import {AsyncState} from "../Types";
+import * as Methods from "../Methods";
 
 export type PromiseOrAsyncFn<T> = Promise<T> | (() => Promise<T>);
 
@@ -15,9 +15,9 @@ export type UseAsyncStateResult<T> = [AsyncState<T>, Dispatch<SetStateAction<Asy
 const createUpdateFn = <T>(asyncState: AsyncState<T>, setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>): UpdateAsyncStateFn<T> => {
     return async (promiseOrAsyncFn, options): Promise<AsyncState<T>> => {
         if (options?.refresh) {
-            setAsyncState(currentState => AsyncStateMethods.refresh(currentState));
+            setAsyncState(currentState => Methods.refresh(currentState));
         } else {
-            setAsyncState(currentState => AsyncStateMethods.submit(currentState));
+            setAsyncState(currentState => Methods.submit(currentState));
         }
 
         let valueResolve: ((state: AsyncState<T>) => void) = () => {
@@ -41,13 +41,13 @@ const createUpdateFn = <T>(asyncState: AsyncState<T>, setAsyncState: Dispatch<Se
             }
 
             setAsyncState(currentState => {
-                const updatedState = AsyncStateMethods.resolve(currentState, value);
+                const updatedState = Methods.resolve(currentState, value);
                 valueResolve(updatedState);
                 return updatedState;
             });
         } catch (error) {
             setAsyncState(currentState => {
-                const updatedState = AsyncStateMethods.reject(currentState, error);
+                const updatedState = Methods.reject(currentState, error);
                 valueResolve(updatedState);
                 return updatedState;
             });
@@ -59,7 +59,7 @@ const createUpdateFn = <T>(asyncState: AsyncState<T>, setAsyncState: Dispatch<Se
 };
 
 export function useAsyncState<T>(defaultValue?: T): UseAsyncStateResult<T> {
-    const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncStateMethods.create(defaultValue));
+    const [asyncState, setAsyncState] = useState<AsyncState<T>>(Methods.create(defaultValue));
     const updateFn = useMemo<UpdateAsyncStateFn<T>>(() => createUpdateFn(asyncState, setAsyncState), [asyncState]);
 
     return [asyncState, setAsyncState, updateFn];

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {AsyncState} from "./AsyncStateTypes";
+import {AsyncState} from "./Types";
 
 export const unstable__lens = <V, T>(state: AsyncState<T>, lens: (value: T) => V, defaultValue?: V): AsyncState<V> => {
     return new Proxy(state, {

@@ -1,5 +1,6 @@
-import * as AsyncStateMethods from "../AsyncStateMethods";
-import {AsyncState} from "../AsyncStateTypes";
+import * as AsyncStateMethods from "../Methods";
+import {AsyncActionCreatorsThunk, AsyncActionHandler, Dispatch} from "./ReduxTypes";
+import {AsyncState} from "../Types";
 
 export type AsyncStateActionMap<S> = {
     [K in keyof S]?: string;
@@ -40,7 +41,7 @@ const asyncStateReducer = (type: string, asyncState: AsyncState<any>, action: Ac
     return asyncState;
 };
 
-export const asyncStateReducers = <S extends Record<string, any>, A>(state: S, action: Action, types: AsyncStateActionMap<S>): S => {
+export const redux = <S extends Record<string, any>, A>(state: S, action: Action, types: AsyncStateActionMap<S>): S => {
     const copy: any = {...state};
     const keys = Object.keys(types);
     for (let i = 0; i < keys.length; i++) {
@@ -68,20 +69,6 @@ export interface AsyncActionCreators<T extends string = string, P = any, V = any
     type: T;
 }
 
-type Dispatch = (action: Action) => void | Promise<any>;
-
-interface AsyncActionThunk<T = string, P = any, V = any> {
-    (payload: P): ((dispatch: Dispatch, getState: Function) => any);
-
-    type: T;
-}
-
-export interface AsyncActionCreatorsThunk<T extends string = string, P = any, V = any> extends Omit<AsyncActionCreators<T, P, V>, "submit" | "refresh"> {
-    submit: AsyncActionThunk<string, P, V>;
-
-    refresh: AsyncActionThunk<string, P, V>;
-}
-
 const actionCreator = <T extends string = string, P = any>(type: T): ActionCreator<T, P> => {
     return Object.assign((payload: P): Action<T, P> => {
         return {
@@ -90,8 +77,6 @@ const actionCreator = <T extends string = string, P = any>(type: T): ActionCreat
         };
     }, {type: type});
 };
-
-export type AsyncActionHandler<S, P, V> = (action: Action<string, P>, dispatch: Dispatch, getState: () => S) => Promise<V>;
 
 const actionCreatorsImpl = <S, P = any, V = any, H extends undefined | AsyncActionHandler<S, P, V> = undefined>(type: string, handler: H):
     (H extends undefined ? AsyncActionCreators<string, P, V> : AsyncActionCreatorsThunk<string, P, V>) => {

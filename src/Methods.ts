@@ -8,7 +8,7 @@ import {
     AsyncStateSettled,
     AsyncStateStatus,
     AsyncStateSubmitting, MatchCases,
-} from "./AsyncStateTypes";
+} from "./Types";
 import {NotFunction} from "./Utils";
 
 export const getStatus = <T>(state: AsyncState<T>): AsyncStateStatus => {
@@ -130,6 +130,21 @@ export const isPristine = <T>(state: AsyncState<T>): state is AsyncStateRejected
 
 export const isSettled = <T>(state: AsyncState<T>): state is AsyncStateSettled<T> => {
     return state.settled;
+};
+
+/**
+ * @description Patch the value of a **resolved** state.
+ *
+ * @throws {Error} if `state` is not resolved
+ */
+export const patch = <T>(state: AsyncStateResolved<T>, patcher: (value: T) => T): AsyncStateResolved<T> => {
+    if (isResolved(state)) {
+        return {
+            ...state,
+            value: patcher(state.value),
+        };
+    }
+    throw new Error(`Can only patch 'resolved' states, this state was ${getStatus(state)}`);
 };
 
 export const match = <T, V extends NotFunction>(state: AsyncState<T>, cases: MatchCases<T, V>, defaultValue: V): V => {
