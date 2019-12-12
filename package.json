@@ -31,7 +31,8 @@
     "index.d.ts",
     "esm/",
     "cjs/",
-    "react/"
+    "react/",
+    "redux/"
   ],
   "peerDependencies": {
     "react": ">=16.8.0"

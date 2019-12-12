@@ -2,6 +2,10 @@
 
 A consistent method of storing state for async calls to reduce boilerplate in react code
 
+``` npm i react-async-stateful ```
+
+## Usage
+
 ```jsx harmony
 // plain js
 import {useAsyncState} from "react-async-stateful";
