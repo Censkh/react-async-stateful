@@ -1,7 +1,7 @@
 {
   "name": "react-async-stateful",
-  "version": "0.1.1",
-  "description": "",
+  "version": "0.1.2",
+  "description": "Declarative async state to reduce boilerplate",
   "main": "index.js",
   "types": "index.d.ts",
   "esnext": "esm/index.js",
@@ -17,9 +17,10 @@
   },
   "keywords": [
     "typescript",
+    "react",
     "async",
     "state",
-    "react"
+    "hooks"
   ],
   "author": "James Waterhouse <09jwater@gmail.com>",
   "license": "MIT",
