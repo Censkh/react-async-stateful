@@ -1,129 +1,163 @@
 import * as AsyncStateMethods from "../Methods";
-import {AsyncActionCreatorsThunk, AsyncActionHandler, Dispatch} from "./ReduxTypes";
-import {AsyncState} from "../Types";
+import { AsyncState } from "../Types";
 
-export type AsyncStateActionMap<S> = {
-    [K in keyof S]?: string;
-}
+import {
+  Action,
+  ActionCreator,
+  AsyncActionCreators,
+  AsyncActionCreatorsWithThunk,
+  AsyncActionHandler,
+  Dispatch,
+  Thunk
+} from "./ReduxTypes";
 
-export type Action<T extends string = string, P = any> = {
-    type: T;
-    payload: P;
-}
-
-export interface ActionCreator<T extends string = string, P = any> {
-    (payload: P): Action<T, P>;
-
-    type: T;
-}
-
-const asyncStateReducer = (type: string, asyncState: AsyncState<any>, action: Action): AsyncState<any> => {
-    switch (action.type) {
-        case `${type}__RESET`:
-            asyncState = AsyncStateMethods.reset(asyncState);
-            break;
-        case `${type}__SUBMIT`:
-            asyncState = AsyncStateMethods.submit(asyncState);
-            break;
-        case `${type}__REFRESH`:
-            asyncState = AsyncStateMethods.refresh(asyncState);
-            break;
-        case `${type}__RESOLVED`:
-            asyncState = AsyncStateMethods.resolve(asyncState, action.payload);
-            break;
-        case `${type}__REJECTED`:
-            asyncState = AsyncStateMethods.reject(asyncState, action.payload);
-            break;
-        default:
-            return asyncState;
-    }
-
-    return asyncState;
+const asyncStateReducer = (
+    type: string,
+    asyncState: AsyncState<any>,
+    action: Action
+): AsyncState<any> => {
+  switch (action.type) {
+    case `${type}__RESET`:
+      return AsyncStateMethods.reset(asyncState);
+    case `${type}__SUBMIT`:
+      return AsyncStateMethods.submit(asyncState);
+    case `${type}__REFRESH`:
+      return AsyncStateMethods.refresh(asyncState);
+    case `${type}__RESOLVED`:
+      return AsyncStateMethods.resolve(asyncState, action.payload);
+    case `${type}__REJECTED`:
+      return AsyncStateMethods.reject(asyncState, action.payload);
+    default:
+      return asyncState;
+  }
 };
 
-export const redux = <S extends Record<string, any>, A>(state: S, action: Action, types: AsyncStateActionMap<S>): S => {
-    const copy: any = {...state};
-    const keys = Object.keys(types);
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i] as keyof S;
-        const type = types[key];
-        copy[key] = asyncStateReducer(type as string, state[key], action);
-    }
+export const asyncStateReducers = <T>(
+  state: T,
+  action: Action,
+  types: Partial<Record<keyof T, string>>
+) => {
+  let copy = null;
+  const keys = Object.keys(types);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const type = (types as any)[key];
 
-    return copy;
+    const current = (state as any)[key];
+    const updated = asyncStateReducer(type, current, action);
+    if (current !== updated) {
+      if (!copy) {
+        copy = { ...state };
+      }
+      (copy as any)[key] = updated;
+    }
+  }
+
+  return copy || state;
 };
 
-export interface AsyncActionCreators<T extends string = string, P = any, V = any> {
-    (payload: P): void;
+export const reducers = asyncStateReducers;
 
-    reset: ActionCreator<string, void>;
+const actionCreator = <P = any>(type: string): ActionCreator<P> => {
+  return Object.assign(
+    (payload: P): Action<P> => {
+      return {
+        type,
+        payload
+      };
+    },
+    { type: type }
+  );
+};
 
-    submit: ActionCreator<string, P>;
+let lockIdCounter = 0;
+const locks: Record<string, number> = {};
 
-    refresh: ActionCreator<string, P>;
+const actionCreatorsImpl = <
+  S,
+  P = any,
+  V = any,
+  H extends undefined | AsyncActionHandler<S, P, V> = undefined
+>(
+  type: string,
+  handler: H
+): H extends undefined
+  ? AsyncActionCreators<P, V>
+  : AsyncActionCreatorsWithThunk<P, V> => {
+  const creators: AsyncActionCreators<P, V> = Object.assign(
+    (payload: P) => {
+      return creators.submit(payload);
+    },
+    {
+      type: type,
+      reset: actionCreator<void>(`${type}__RESET`),
+      submit: actionCreator<P>(`${type}__SUBMIT`),
+      refresh: actionCreator<P>(`${type}__REFRESH`),
+      resolved: actionCreator<V>(`${type}__RESOLVED`),
+      rejected: actionCreator<Error>(`${type}__REJECTED`)
+    }
+  );
 
-    resolved: ActionCreator<string, V>;
+  if (typeof handler === "function") {
+    const injectEnhancedMethod = <C extends Record<string, any>>(
+      name: string,
+      creators: C,
+      handler: AsyncActionHandler<S, P, V>
+    ): void => {
+      const original = creators[name];
+      (creators as any)[name] = (payload: P) => {
+        return async (dispatch: Dispatch, getState: () => S): Promise<any> => {
+          const operationId = lockIdCounter++;
+          locks[type] = operationId;
 
-    rejected: ActionCreator<string, Error>;
+          const dispatchIfStillCurrentOp = (action: Action | Thunk) => {
+            if (locks[type] === operationId) {
+              dispatch(action);
+            }
+          };
 
-    type: T;
-}
+          // wait 200ms to send the pending action incase we resolve first
+          const pendingTimeout = setTimeout(
+            () => dispatchIfStillCurrentOp(original(payload)),
+            200
+          );
 
-const actionCreator = <T extends string = string, P = any>(type: T): ActionCreator<T, P> => {
-    return Object.assign((payload: P): Action<T, P> => {
-        return {
-            type,
-            payload,
+          const actionType = `${type}__${(name as string).toUpperCase()}`;
+          const action = { type: actionType, payload: payload };
+
+          try {
+            const result = await handler(action, dispatch, getState);
+            return dispatchIfStillCurrentOp(creators.resolved(result));
+          } catch (error) {
+            console.error(`${actionType}:`, error);
+            return dispatchIfStillCurrentOp(creators.rejected(error));
+          } finally {
+            clearTimeout(pendingTimeout);
+          }
         };
-    }, {type: type});
-};
+      };
+    };
 
-const actionCreatorsImpl = <S, P = any, V = any, H extends undefined | AsyncActionHandler<S, P, V> = undefined>(type: string, handler: H):
-    (H extends undefined ? AsyncActionCreators<string, P, V> : AsyncActionCreatorsThunk<string, P, V>) => {
-    const creators: AsyncActionCreators<string, P, V> = Object.assign((payload: P) => {
-        return creators.submit(payload);
-    }, {
-        type    : type,
-        reset   : actionCreator<string, void>(`${type}__RESET`),
-        submit  : actionCreator<string, P>(`${type}__SUBMIT`),
-        refresh : actionCreator<string, P>(`${type}__REFRESH`),
-        resolved: actionCreator<string, V>(`${type}__RESOLVED`),
-        rejected: actionCreator<string, Error>(`${type}__REJECTED`),
-    });
-
-    if (typeof handler === "function") {
-        const injectEnhancedMethod = <C extends Record<string, any>>(name: string, creators: C, handler: AsyncActionHandler<S, P, V>): void => {
-            const original = creators[name];
-            (creators as any)[name] = (payload: P) => {
-                return async (dispatch: Dispatch, getState: () => S): Promise<any> => {
-                    dispatch(original(payload));
-
-                    const actionType = `${type}__${(name as string).toUpperCase()}}`;
-                    const action = {type: actionType, payload: payload};
-
-                    try {
-                        const result = await handler(action, dispatch, getState);
-                        return dispatch(creators.resolved(result));
-                    } catch (error) {
-                        console.error(`${actionType}:`, error);
-                        return dispatch(creators.rejected(error));
-                    }
-                };
-            };
-        };
-
-        injectEnhancedMethod("submit", creators, handler as any);
-        injectEnhancedMethod("refresh", creators, handler as any);
-        return creators as any;
-    }
-
+    injectEnhancedMethod("submit", creators, handler as any);
+    injectEnhancedMethod("refresh", creators, handler as any);
     return creators as any;
+  }
+
+  return creators as any;
 };
 
-export const actionCreators = <S, P = any, V = any>(type: string): AsyncActionCreators<string, P, V> => {
-    return actionCreatorsImpl(type, undefined);
+export const actionCreators = <S, P = any, V = any>(
+  type: string
+): AsyncActionCreators<P, V> => {
+  return actionCreatorsImpl(type, undefined);
 };
 
-export const actionCreatorsThunk = <S, P = any, V = any>(type: string, handler: AsyncActionHandler<S, P, V>): AsyncActionCreatorsThunk<string, P, V> => {
-    return actionCreatorsImpl<S, P, V, AsyncActionHandler<S, P, V>>(type, handler);
+export const actionCreatorsThunk = <S, P = any, V = any>(
+  type: string,
+  handler: AsyncActionHandler<S, P, V>
+): AsyncActionCreatorsWithThunk<P, V> => {
+  return actionCreatorsImpl<S, P, V, AsyncActionHandler<S, P, V>>(
+    type,
+    handler
+  );
 };

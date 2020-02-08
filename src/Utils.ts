@@ -1,4 +1,4 @@
 export type NotFunction = any & {
-    (): never;
-    call: never;
-}
+  (): never;
+  call: never;
+};

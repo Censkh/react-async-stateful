@@ -4,3 +4,4 @@ export * from "./Lens";
 export * from "./Utils";
 
 export * from "./react";
+export * from "./redux";
