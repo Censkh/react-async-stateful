@@ -12,7 +12,6 @@ import {
   StatefulPromise,
 } from "./Types";
 import { NotFunction } from "./Utils";
-import * as asyncState from "./index";
 
 export const getStatus = <T>(state: AsyncState<T>): AsyncStateStatus => {
   if (state.pristine) return "pristine";
