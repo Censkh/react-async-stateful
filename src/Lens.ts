@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AsyncState } from "./Types";
+import AsyncState from "./AsyncState";
 
 export const unstable__lens = <V, T>(
   state: AsyncState<T>,

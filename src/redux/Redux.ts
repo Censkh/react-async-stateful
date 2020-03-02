@@ -1,6 +1,3 @@
-import * as AsyncStateMethods from "../Methods";
-import { AsyncState } from "../Types";
-
 import {
   Action,
   ActionCreator,
@@ -10,6 +7,7 @@ import {
   Dispatch,
   Thunk
 } from "./ReduxTypes";
+import AsyncState from "../AsyncState";
 
 const asyncStateReducer = (
     type: string,
@@ -18,15 +16,15 @@ const asyncStateReducer = (
 ): AsyncState<any> => {
   switch (action.type) {
     case `${type}__RESET`:
-      return AsyncStateMethods.reset(asyncState);
+      return asyncState.reset();
     case `${type}__SUBMIT`:
-      return AsyncStateMethods.submit(asyncState);
+      return asyncState.submit();
     case `${type}__REFRESH`:
-      return AsyncStateMethods.refresh(asyncState);
+      return asyncState.refresh();
     case `${type}__RESOLVED`:
-      return AsyncStateMethods.resolve(asyncState, action.payload);
+      return asyncState.resolve(action.payload);
     case `${type}__REJECTED`:
-      return AsyncStateMethods.reject(asyncState, action.payload);
+      return asyncState.reject(action.payload);
     default:
       return asyncState;
   }
@@ -146,13 +144,13 @@ const actionCreatorsImpl = <
   return creators as any;
 };
 
-export const actionCreators = <S, P = any, V = any>(
+export const asyncStateActionCreators = <S, P = any, V = any>(
   type: string
 ): AsyncActionCreators<P, V> => {
   return actionCreatorsImpl(type, undefined);
 };
 
-export const actionCreatorsThunk = <S, P = any, V = any>(
+export const asyncStateActionCreatorsThunk = <S, P = any, V = any>(
   type: string,
   handler: AsyncActionHandler<S, P, V>
 ): AsyncActionCreatorsWithThunk<P, V> => {
