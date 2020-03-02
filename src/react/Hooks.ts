@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import {Dispatch, SetStateAction, useMemo, useState} from "react";
 import AsyncState from "../AsyncState";
 
 export type PromiseOrAsyncFn<T> = Promise<T> | (() => Promise<T>);
@@ -9,7 +9,7 @@ interface UpdateAsyncStateOptions {
 
 export type UpdateAsyncStateFn<T> = (
   promiseOrAsyncFn: PromiseOrAsyncFn<T>,
-  options?: UpdateAsyncStateOptions
+  options?: UpdateAsyncStateOptions,
 ) => Promise<AsyncState<T>>;
 
 export type UseAsyncStateResult<T> = [
@@ -20,7 +20,7 @@ export type UseAsyncStateResult<T> = [
 
 const createUpdateFn = <T>(
   asyncState: AsyncState<T>,
-  setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>
+  setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>,
 ): UpdateAsyncStateFn<T> => {
   return async (promiseOrAsyncFn, options): Promise<AsyncState<T>> => {
     if (options?.refresh) {
@@ -45,14 +45,14 @@ const createUpdateFn = <T>(
         throw new Error(
           typeof promiseOrAsyncFn === "function"
             ? "Function provided did not return a promise"
-            : "First argument was not a promise or an async function"
+            : "First argument was not a promise or an async function",
         );
       }
 
       const value = await promise;
       if (value === undefined) {
         throw new Error(
-          "Update state resolution cannot resolve to 'undefined', did you miss a return in your promise?"
+          "Update state resolution cannot resolve to 'undefined', did you miss a return in your promise?",
         );
       }
 
@@ -77,11 +77,11 @@ const createUpdateFn = <T>(
 
 export function useAsyncState<T>(defaultValue?: T): UseAsyncStateResult<T> {
   const [asyncState, setAsyncState] = useState<AsyncState<T>>(
-    AsyncState.create(defaultValue)
+    AsyncState.create(defaultValue),
   );
   const updateFn = useMemo<UpdateAsyncStateFn<T>>(
     () => createUpdateFn(asyncState, setAsyncState),
-    [asyncState]
+    [asyncState],
   );
 
   return [asyncState, setAsyncState, updateFn];

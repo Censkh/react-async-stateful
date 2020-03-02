@@ -9,9 +9,9 @@ import {
   AsyncStateStatus,
   AsyncStateSubmitting,
   AsyncStateSubmitType,
-  MatchCases
+  MatchCases,
 } from "./Types";
-import { NotFunction } from "./Utils";
+import {NotFunction} from "./Utils";
 
 interface CreateOptions {
   pending?: boolean;
@@ -42,11 +42,11 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
 
   static create<T>(
     defaultValue: T | undefined,
-    options: CreateOptionsPending | CreateOptions = {}
+    options: CreateOptionsPending | CreateOptions = {},
   ): AsyncStatePristine<T> {
     return new AsyncState<T>({
       defaultValue,
-      pending: options.pending || false
+      pending: options.pending || false,
     }) as any;
   }
 
@@ -61,61 +61,61 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   resolve(this: AsyncState<T>, value: T): AsyncStateResolved<T> {
     if (value === undefined) {
       throw new Error(
-        "Cannot resolve async this to 'undefined', did you mean 'reset(this)'?"
+        "Cannot resolve async this to 'undefined', did you mean 'reset(this)'?",
       );
     }
 
     return new AsyncState({
       ...this,
-      error: undefined,
-      pending: false,
-      pristine: false,
-      rejected: false,
-      resolved: true,
+      error     : undefined,
+      pending   : false,
+      pristine  : false,
+      rejected  : false,
+      resolved  : true,
       resolvedAt: Date.now(),
-      settled: true,
-      settledAt: Date.now(),
-      value: value
+      settled   : true,
+      settledAt : Date.now(),
+      value     : value,
     }) as any;
   }
 
   reject(this: AsyncState<T>, error: Error): AsyncStateRejected<T> {
     return new AsyncState<T>({
       ...this,
-      error: error,
-      pending: false,
-      pristine: false,
-      rejected: true,
+      error     : error,
+      pending   : false,
+      pristine  : false,
+      rejected  : true,
       rejectedAt: Date.now(),
-      settled: true,
-      settledAt: Date.now(),
-      resolved: false,
-      value: this.defaultValue ?? undefined
+      settled   : true,
+      settledAt : Date.now(),
+      resolved  : false,
+      value     : this.defaultValue ?? undefined,
     }) as any;
   }
 
   submit(): AsyncStateSubmitting<T> {
     return new AsyncState<T>({
       ...this,
-      pending: true,
-      pendingAt: Date.now(),
-      pristine: false,
-      rejected: false,
-      resolved: false,
-      settled: false,
-      value: this.defaultValue ?? undefined,
-      submitType: "submit"
+      pending   : true,
+      pendingAt : Date.now(),
+      pristine  : false,
+      rejected  : false,
+      resolved  : false,
+      settled   : false,
+      value     : this.defaultValue ?? undefined,
+      submitType: "submit",
     }) as any;
   }
 
   refresh(): AsyncStateRefreshing<T> {
     return new AsyncState<T>({
       ...this,
-      pristine: false,
-      pending: true,
-      pendingAt: Date.now(),
-      settled: false,
-      submitType: "refresh"
+      pristine  : false,
+      pending   : true,
+      pendingAt : Date.now(),
+      settled   : false,
+      submitType: "refresh",
     }) as any;
   }
 
@@ -169,7 +169,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       });
     }
     throw new Error(
-      `Can only patch 'resolved' states, this this was ${this.getStatus()}`
+      `Can only patch 'resolved' states, this this was ${this.getStatus()}`,
     );
   }
 

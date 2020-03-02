@@ -95,8 +95,8 @@ export type MatchCases<T, V> = {
   [K in AsyncStateStatus]?: K extends "resolved"
     ? V | ((value: T) => V)
     : K extends "rejected"
-    ? V | ((error: Error) => V)
-    : V;
+      ? V | ((error: Error) => V)
+      : V;
 };
 
 export interface StatefulPromise<T> extends Promise<T>, AsyncStateBase<T> {
@@ -110,6 +110,7 @@ export interface StatefulPromise<T> extends Promise<T>, AsyncStateBase<T> {
       | undefined
       | null,
   ): StatefulPromise<TResult1 | TResult2>;
+
   catch<TResult = never>(
     onrejected?:
       | ((reason: any) => TResult | PromiseLike<TResult>)

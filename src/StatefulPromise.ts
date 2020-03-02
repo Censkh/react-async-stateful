@@ -1,5 +1,3 @@
-import {StatefulPromise} from "./Types";
-
 /*export const toStateful = <T>(promise: Promise<T>): StatefulPromise<T> => {
     const stateful: StatefulPromise<T> = Object.assign(
         promise,

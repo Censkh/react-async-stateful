@@ -1,12 +1,11 @@
 {
   "name": "react-async-stateful",
-  "version": "0.3.0-alpha3",
+  "version": "0.3.0-alpha4",
   "description": "Declarative async state to reduce boilerplate",
   "main": "index.js",
   "types": "index.d.ts",
   "esnext": "esm/index.js",
   "scripts": {
-    "format": "prettier",
     "lint": "eslint --ext .tsx,.ts src",
     "lint:fix": "eslint --fix --ext .tsx,.ts src",
     "build": "npm run build:esm && npm run build:cjs",
@@ -63,10 +62,6 @@
     "redux": "^4.0.4",
     "sass": "^1.23.7",
     "typescript": "^3.7.3"
-  },
-  "dependencies": {
-    "classnames": "^2.2.6",
-    "prettier": "^1.19.1"
   },
   "repository": "https://github.com/Censkh/react-async-stateful"
 }
