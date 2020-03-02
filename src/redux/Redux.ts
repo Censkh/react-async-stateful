@@ -1,3 +1,6 @@
+import * as AsyncStateMethods from "../Methods";
+import { AsyncState } from "../Types";
+
 import {
   Action,
   ActionCreator,
@@ -7,7 +10,6 @@ import {
   Dispatch,
   Thunk
 } from "./ReduxTypes";
-import AsyncState from "../AsyncState";
 
 const asyncStateReducer = (
     type: string,
@@ -16,55 +18,53 @@ const asyncStateReducer = (
 ): AsyncState<any> => {
   switch (action.type) {
     case `${type}__RESET`:
-      return asyncState.reset();
+      return AsyncStateMethods.reset(asyncState);
     case `${type}__SUBMIT`:
-      return asyncState.submit();
+      return AsyncStateMethods.submit(asyncState);
     case `${type}__REFRESH`:
-      return asyncState.refresh();
+      return AsyncStateMethods.refresh(asyncState);
     case `${type}__RESOLVED`:
-      return asyncState.resolve(action.payload);
+      return AsyncStateMethods.resolve(asyncState, action.payload);
     case `${type}__REJECTED`:
-      return asyncState.reject(action.payload);
+      return AsyncStateMethods.reject(asyncState, action.payload);
     default:
       return asyncState;
   }
 };
 
-export const asyncStateReducers = <T>(
-  state: T,
-  action: Action,
-  types: Partial<Record<keyof T, string>>
-) => {
-  let copy = null;
-  const keys = Object.keys(types);
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    const type = (types as any)[key];
+export const createAsyncStateReducer = <T>(
+    types: { [K in keyof T]?: string },
+): ((state: T, action: Action) => T) => {
+  return (state, action) => {
+    let copy = null;
+    const keys = Object.keys(types);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const type = (types as any)[key];
 
-    const current = (state as any)[key];
-    const updated = asyncStateReducer(type, current, action);
-    if (current !== updated) {
-      if (!copy) {
-        copy = { ...state };
+      const current = (state as any)[key];
+      const updated = asyncStateReducer(type, current, action);
+      if (current !== updated) {
+        if (!copy) {
+          copy = { ...state };
+        }
+        (copy as any)[key] = updated;
       }
-      (copy as any)[key] = updated;
     }
-  }
 
-  return copy || state;
+    return copy || state;
+  };
 };
-
-export const reducers = asyncStateReducers;
 
 const actionCreator = <P = any>(type: string): ActionCreator<P> => {
   return Object.assign(
     (payload: P): Action<P> => {
       return {
         type,
-        payload
+        payload,
       };
     },
-    { type: type }
+    { type: type },
   );
 };
 
@@ -144,13 +144,13 @@ const actionCreatorsImpl = <
   return creators as any;
 };
 
-export const asyncStateActionCreators = <S, P = any, V = any>(
+export const actionCreators = <S, P = any, V = any>(
   type: string
 ): AsyncActionCreators<P, V> => {
   return actionCreatorsImpl(type, undefined);
 };
 
-export const asyncStateActionCreatorsThunk = <S, P = any, V = any>(
+export const actionCreatorsThunk = <S, P = any, V = any>(
   type: string,
   handler: AsyncActionHandler<S, P, V>
 ): AsyncActionCreatorsWithThunk<P, V> => {
