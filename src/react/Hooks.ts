@@ -49,11 +49,10 @@ const createUpdateFn = <T>(
         );
       }
 
-      const value = await promise;
+      let value = await promise;
       if (value === undefined) {
-        throw new Error(
-          "Update state resolution cannot resolve to 'undefined', did you miss a return in your promise?",
-        );
+        // shouldn't resolve to undefined, as that denotes we haven't resolved at all
+        value = null as any;
       }
 
       setAsyncState(currentState => {
