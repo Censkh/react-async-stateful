@@ -49,3 +49,5 @@ export type AsyncActionHandler<S, P, V> = (
   dispatch: Dispatch,
   getState: () => S,
 ) => Promise<V>;
+
+export type TypedReducer<S> = (state: S, action: Action) => S;

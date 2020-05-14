@@ -1,3 +1,5 @@
+import AsyncState from "./AsyncState";
+
 export type AsyncStateSubmitType = "submit" | "refresh";
 
 export enum AsyncStateActionType {
@@ -8,7 +10,7 @@ export enum AsyncStateActionType {
   Resolve = "resolve",
 }
 
-export interface AsyncState<T> {
+export interface AsyncStateBase<T> {
   readonly defaultValue: T | undefined;
   readonly pristine: boolean;
   readonly pending: boolean;
@@ -97,7 +99,7 @@ export type MatchCases<T, V> = {
     : V;
 };
 
-export interface StatefulPromise<T> extends Promise<T>, AsyncState<T> {
+export interface StatefulPromise<T> extends Promise<T>, AsyncStateBase<T> {
   then<TResult1 = T, TResult2 = never>(
     onfulfilled?:
       | ((value: T) => TResult1 | PromiseLike<TResult1>)
