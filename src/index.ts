@@ -1,3 +1,6 @@
+/// <reference types="typescript" />
+"use strict";
+
 import AsyncState from "./AsyncState";
 
 export * from "./Types";

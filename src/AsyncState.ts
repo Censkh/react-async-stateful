@@ -26,7 +26,6 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   readonly error: Error | undefined = undefined;
   readonly pending: boolean = false;
   readonly pendingAt: number | null = null;
-  readonly pristine: boolean = false;
   readonly rejected: boolean = false;
   readonly rejectedAt: number | null = null;
   readonly resolved: boolean = false;
@@ -41,7 +40,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static create<T>(
-    defaultValue: T | undefined,
+    defaultValue?: T,
     options: CreateOptionsPending | CreateOptions = {},
   ): AsyncStatePristine<T> {
     return new AsyncState<T>({
@@ -69,7 +68,6 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       ...this,
       error     : undefined,
       pending   : false,
-      pristine  : false,
       rejected  : false,
       resolved  : true,
       resolvedAt: Date.now(),
@@ -84,7 +82,6 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       ...this,
       error     : error,
       pending   : false,
-      pristine  : false,
       rejected  : true,
       rejectedAt: Date.now(),
       settled   : true,
@@ -120,7 +117,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   getStatus(): AsyncStateStatus {
-    if (this.pristine) return "pristine";
+    if (this.isPristine()) return "pristine";
     if (this.pending && this.submitType === "refresh") {
       return "refreshing";
     }
@@ -148,8 +145,8 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     return this.resolved;
   }
 
-  isPristine(): this is AsyncStateRejected<T> {
-    return this.pristine;
+  isPristine(): this is AsyncStatePristine<T> {
+    return !this.isRejected() && !this.isResolved() && !this.isPending();
   }
 
   isSettled(): this is AsyncStateSettled<T> {
