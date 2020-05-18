@@ -19,7 +19,7 @@ type CreateOptionsPending = CreateOptions & {
   pending: true;
 };
 
-const DEFAULT_STATE: AsyncStateBase<any> = {
+const DEFAULT_STATE: AsyncStateBase<any> =  {
   defaultValue: undefined,
   error       : undefined,
   pending     : false,
@@ -35,18 +35,22 @@ const DEFAULT_STATE: AsyncStateBase<any> = {
 };
 
 export default class AsyncState<T> implements AsyncStateBase<T> {
-  readonly defaultValue: T | undefined = undefined;
-  readonly error: Error | undefined = undefined;
-  readonly pending: boolean = false;
-  readonly pendingAt: number | null = null;
-  readonly rejected: boolean = false;
-  readonly rejectedAt: number | null = null;
-  readonly resolved: boolean = false;
-  readonly resolvedAt: number | null = null;
-  readonly settled: boolean = false;
-  readonly settledAt: number | null = null;
-  readonly submitType: AsyncStateSubmitType | undefined = undefined;
-  readonly value: T | undefined = undefined;
+  readonly defaultValue: T | undefined = DEFAULT_STATE.defaultValue;
+  readonly error: Error | undefined = DEFAULT_STATE.error;
+  readonly pending: boolean = DEFAULT_STATE.pending;
+  readonly pendingAt: number | null = DEFAULT_STATE.pendingAt;
+  readonly rejected: boolean = DEFAULT_STATE.rejected;
+  readonly rejectedAt: number | null = DEFAULT_STATE.rejectedAt;
+  readonly resolved: boolean = DEFAULT_STATE.resolved;
+  readonly resolvedAt: number | null = DEFAULT_STATE.resolvedAt;
+  readonly settled: boolean = DEFAULT_STATE.settled;
+  readonly settledAt: number | null = DEFAULT_STATE.settledAt;
+  readonly submitType: AsyncStateSubmitType | undefined = DEFAULT_STATE.submitType;
+  readonly value: T | undefined = DEFAULT_STATE.value;
+
+  private constructor() {
+    // prevents new AsyncState()
+  }
 
   static create<T>(
     defaultValue?: T,

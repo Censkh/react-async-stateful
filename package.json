@@ -27,12 +27,8 @@
   "files": [
     "LICENSE",
     "README.md",
-    "index.js",
-    "index.d.ts",
     "esm/",
-    "cjs/",
-    "react/",
-    "redux/"
+    "cjs/"
   ],
   "peerDependencies": {
     "react": ">=16.8.0",
