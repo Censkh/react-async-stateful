@@ -19,7 +19,6 @@ export type UseAsyncStateResult<T> = [
 ];
 
 const createUpdateFn = <T>(
-  asyncState: AsyncState<T>,
   setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>,
 ): UpdateAsyncStateFn<T> => {
   return async (promiseOrAsyncFn, options): Promise<AsyncState<T>> => {
@@ -64,7 +63,10 @@ const createUpdateFn = <T>(
       setAsyncState(currentState => {
         const updatedState = currentState.reject(error);
         valueResolve(updatedState);
-        console.error("Updating async state failed", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("[react-async-stateful] Updating async state failed:");
+          console.error(error);
+        }
         return updatedState;
       });
     }
@@ -75,12 +77,10 @@ const createUpdateFn = <T>(
 };
 
 export function useAsyncState<T>(defaultValue?: T): UseAsyncStateResult<T> {
-  const [asyncState, setAsyncState] = useState<AsyncState<T>>(
-    AsyncState.create(defaultValue),
-  );
+  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue),);
   const updateFn = useMemo<UpdateAsyncStateFn<T>>(
-    () => createUpdateFn(asyncState, setAsyncState),
-    [asyncState],
+    () => createUpdateFn(setAsyncState),
+    [],
   );
 
   return [asyncState, setAsyncState, updateFn];
