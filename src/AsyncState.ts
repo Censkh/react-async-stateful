@@ -2,12 +2,10 @@ import {
   AsyncStateBase,
   AsyncStatePending,
   AsyncStatePristine,
-  AsyncStateRefreshing,
   AsyncStateRejected,
   AsyncStateResolved,
   AsyncStateSettled,
   AsyncStateStatus,
-  AsyncStateSubmitting,
   AsyncStateSubmitType,
   MatchCases,
 }                    from "./Types";
@@ -21,51 +19,65 @@ type CreateOptionsPending = CreateOptions & {
   pending: true;
 };
 
-export default class AsyncState<T> implements AsyncStateBase<T> {
-  readonly defaultValue: T | undefined = undefined;
-  readonly error: Error | undefined = undefined;
-  readonly pending: boolean = false;
-  readonly pendingAt: number | null = null;
-  readonly rejected: boolean = false;
-  readonly rejectedAt: number | null = null;
-  readonly resolved: boolean = false;
-  readonly resolvedAt: number | null = null;
-  readonly settled: boolean = false;
-  readonly settledAt: number | null = null;
-  readonly submitType: AsyncStateSubmitType | undefined = undefined;
-  readonly value: T | undefined = undefined;
+const DEFAULT_STATE: AsyncStateBase<any> =  {
+  defaultValue: undefined,
+  error       : undefined,
+  pending     : false,
+  pendingAt   : null,
+  rejected    : false,
+  rejectedAt  : null,
+  resolved    : false,
+  resolvedAt  : null,
+  settled     : false,
+  settledAt   : null,
+  submitType  : undefined,
+  value       : undefined,
+};
 
-  private constructor(info: Partial<AsyncStateBase<T>>) {
-    Object.assign(this, info);
+export default class AsyncState<T> implements AsyncStateBase<T> {
+  readonly defaultValue: T | undefined = DEFAULT_STATE.defaultValue;
+  readonly error: Error | undefined = DEFAULT_STATE.error;
+  readonly pending: boolean = DEFAULT_STATE.pending;
+  readonly pendingAt: number | null = DEFAULT_STATE.pendingAt;
+  readonly rejected: boolean = DEFAULT_STATE.rejected;
+  readonly rejectedAt: number | null = DEFAULT_STATE.rejectedAt;
+  readonly resolved: boolean = DEFAULT_STATE.resolved;
+  readonly resolvedAt: number | null = DEFAULT_STATE.resolvedAt;
+  readonly settled: boolean = DEFAULT_STATE.settled;
+  readonly settledAt: number | null = DEFAULT_STATE.settledAt;
+  readonly submitType: AsyncStateSubmitType | undefined = DEFAULT_STATE.submitType;
+  readonly value: T | undefined = DEFAULT_STATE.value;
+
+  private constructor() {
+    // prevents new AsyncState()
   }
 
   static create<T>(
     defaultValue?: T,
     options: CreateOptionsPending | CreateOptions = {},
-  ): AsyncStatePristine<T> {
-    return new AsyncState<T>({
+  ): AsyncState<T> {
+    return Object.assign({}, DEFAULT_STATE, {
       defaultValue,
       pending: options.pending || false,
-    }) as any;
+    });
   }
 
-  clone(): AsyncState<T> {
-    return new AsyncState<T>(this);
+  static clone<T>(asyncState: AsyncState<T>): AsyncState<T> {
+    return Object.assign({}, asyncState);
   }
 
-  reset(): AsyncStatePristine<T> {
-    return AsyncState.create(this.defaultValue);
+  static reset<T>(asyncState: AsyncState<T>): AsyncState<T> {
+    return AsyncState.create(asyncState.defaultValue);
   }
 
-  resolve(this: AsyncState<T>, value: T): AsyncStateResolved<T> {
+  static resolve<T>(asyncState: AsyncState<T>, value: T): AsyncState<T> {
     if (value === undefined) {
       throw new Error(
-        "Cannot resolve async this to 'undefined', did you mean 'reset(this)'?",
+        "Cannot resolve async asyncState to 'undefined', did you mean 'reset(asyncState)'?",
       );
     }
 
-    return new AsyncState({
-      ...this,
+    return Object.assign({}, asyncState, {
       error     : undefined,
       pending   : false,
       rejected  : false,
@@ -74,12 +86,11 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       settled   : true,
       settledAt : Date.now(),
       value     : value,
-    }) as any;
+    });
   }
 
-  reject(this: AsyncState<T>, error: Error): AsyncStateRejected<T> {
-    return new AsyncState<T>({
-      ...this,
+  static reject<T>(asyncState: AsyncState<T>, error: Error): AsyncState<T> {
+    return Object.assign({}, asyncState, {
       error     : error,
       pending   : false,
       rejected  : true,
@@ -87,98 +98,95 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       settled   : true,
       settledAt : Date.now(),
       resolved  : false,
-      value     : this.defaultValue ?? undefined,
-    }) as any;
+      value     : asyncState.defaultValue ?? undefined,
+    }) ;
   }
 
-  submit(): AsyncStateSubmitting<T> {
-    return new AsyncState<T>({
-      ...this,
+  static submit<T>(asyncState: AsyncState<T>): AsyncState<T> {
+    return Object.assign({}, asyncState, {
+      ...asyncState,
       pending   : true,
       pendingAt : Date.now(),
-      pristine  : false,
       rejected  : false,
       resolved  : false,
       settled   : false,
-      value     : this.defaultValue ?? undefined,
+      value     : asyncState.defaultValue ?? undefined,
       submitType: "submit",
-    }) as any;
+    });
   }
 
-  refresh(): AsyncStateRefreshing<T> {
-    return new AsyncState<T>({
-      ...this,
-      pristine  : false,
+  static refresh<T>(asyncState: AsyncState<T>): AsyncState<T> {
+    return Object.assign({}, asyncState, {
+      ...asyncState,
       pending   : true,
       pendingAt : Date.now(),
       settled   : false,
       submitType: "refresh",
-    }) as any;
+    });
   }
 
-  getStatus(): AsyncStateStatus {
-    if (this.isPristine()) return "pristine";
-    if (this.pending && this.submitType === "refresh") {
+  static getStatus<T>(asyncState: AsyncState<T>): AsyncStateStatus {
+    if (AsyncState.isPristine(asyncState)) return "pristine";
+    if (asyncState.pending && asyncState.submitType === "refresh") {
       return "refreshing";
     }
-    if (this.pending && this.submitType === "submit") {
+    if (asyncState.pending && asyncState.submitType === "submit") {
       return "submitting";
     }
-    if (this.resolved) {
+    if (asyncState.resolved) {
       return "resolved";
     }
-    if (this.rejected) {
+    if (asyncState.rejected) {
       return "rejected";
     }
     return "invalid";
   }
 
-  isRejected(): this is AsyncStateRejected<T> {
-    return this.rejected;
+  static isRejected<T>(asyncState: AsyncState<T>): asyncState is AsyncStateRejected<T> {
+    return asyncState.rejected;
   }
 
-  isPending(): this is AsyncStatePending<T> {
-    return this.pending;
+  static isPending<T>(asyncState: AsyncState<T>): asyncState is AsyncStatePending<T> {
+    return asyncState.pending;
   }
 
-  isResolved(): this is AsyncStateResolved<T> {
-    return this.resolved;
+  static isResolved<T>(asyncState: AsyncState<T>): asyncState is AsyncStateResolved<T> {
+    return asyncState.resolved;
   }
 
-  isPristine(): this is AsyncStatePristine<T> {
-    return !this.isRejected() && !this.isResolved() && !this.isPending();
+  static isPristine<T>(asyncState: AsyncState<T>): asyncState is AsyncStatePristine<T> {
+    return !AsyncState.isRejected(asyncState) && !AsyncState.isResolved(asyncState) && !AsyncState.isPending(asyncState);
   }
 
-  isSettled(): this is AsyncStateSettled<T> {
-    return this.settled;
+  static isSettled<T>(asyncState: AsyncState<T>): asyncState is AsyncStateSettled<T> {
+    return asyncState.settled;
   }
 
   /**
-   * @description Patch the value of a **resolved** this.
+   * @description Patch the value of a **resolved** asyncState.
    *
-   * @throws {Error} if `this` is not resolved
+   * @throws {Error} if `asyncState` is not resolved
    */
-  apply(func: (value: T) => T): AsyncState<T> {
-    if (this.isResolved()) {
-      return new AsyncState<T>({
-        ...this,
-        value: func(this.value),
+  static apply<T>(asyncState: AsyncState<T>, func: (value: T) => T): AsyncState<T> {
+    if (AsyncState.isResolved(asyncState)) {
+      return Object.assign({}, asyncState, {
+        value: func(asyncState.value),
       });
     }
     throw new Error(
-      `Can only patch 'resolved' states, this this was ${this.getStatus()}`,
+      `Can only patch 'resolved' states, asyncState asyncState was ${AsyncState.getStatus(asyncState)}`,
     );
   }
 
-  match<V extends NotFunction>(cases: MatchCases<T, V>, defaultValue: V): V {
-    const status = this.getStatus();
+  static match<T, V extends NotFunction>(asyncState: AsyncState<T>, cases: MatchCases<T, V>, defaultValue: V): V {
+    const status = AsyncState.getStatus(asyncState);
     if (status in cases) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value = cases[status] as any;
       if (status === "resolved") {
-        return typeof value === "function" ? value(this.value) : value;
+        return typeof value === "function" ? value(asyncState.value) : value;
       } else if (status === "rejected") {
-        return typeof value === "function" ? value(this.error) : value;
+        return typeof value === "function" ? value(asyncState.error) : value;
       }
       return value;
     }

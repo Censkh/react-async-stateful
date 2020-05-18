@@ -43,12 +43,12 @@ The `useAsyncState` hook returns:
 - `asyncState` is the the current value of the async state
 - `setAsyncState` is usually never needed but can be useful to synchronously update the state, eg:
     ```jsx harmony
-  import {resolve} from "react-async-stateful";
+  import AsyncState from "react-async-stateful";
 
   const updateFromLocalStorage = () => {
       setAsyncState(asyncState => {
           const value = localStorage.getItem("key");
-          return resolve(asyncState, value);
+          return AsyncState.resolve(asyncState, value);
       });
   };
     ```
@@ -97,7 +97,7 @@ _whether submit or refresh were used is stored as `submitType` on the async stat
 
 ```typescript jsx
 // typescript
-import * as AsyncState from "react-async-stateful";
+import AsyncState from "react-async-stateful";
 
 // creating the state
 const state = AsyncState.create("hello");
@@ -134,9 +134,9 @@ console.log(state.value); // world
 Typescript has a cool feature allowing you to narrow the type of an object using methods. Supplied are some methods that will make null checking your async state objects easier:
 
 ```typescript jsx
-import {isResolved, useAsyncstate} from "react-async-stateful";
+import AsyncState, {useAsyncState} from "react-async-stateful";
 
-const [asyncState, _, updateAsyncState] = useAsyncstate<UserData>();
+const [asyncState, _, updateAsyncState] = useAsyncState<UserData>();
 
 runUpdateThatWillHappenInTheFuture();
 
@@ -146,7 +146,7 @@ runUpdateThatWillHappenInTheFuture();
 // return asyncState.resolved ? <div>{asyncState.value.id}</div> : "Loading";
 
 // Use `isResolved` and the compiler will be happy that it is definitely present:
-return isResolved(asyncState) ? <div>{asyncState.value.id}</div> : "Loading";
+return AsyncState.isResolved(asyncState) ? <div>{asyncState.value.id}</div> : "Loading";
 ```
 
 ## To-Do

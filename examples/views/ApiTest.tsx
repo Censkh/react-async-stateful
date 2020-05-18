@@ -1,6 +1,6 @@
 import * as React          from "react";
 import {useCallback}       from "react";
-import {useAsyncState}     from "../..";
+import AsyncState, {useAsyncState}     from "../..";
 import {FoodItem, getList} from "../api";
 
 const ApiTest: React.FC = () => {
@@ -35,7 +35,7 @@ const ApiTest: React.FC = () => {
         Source Code
       </a>
       <p>
-        <b>Pending:</b> <span>{list.isPending().toString()}</span>
+        <b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span>
       </p>
       <button disabled={list.pending} onClick={() => submit(false)}>
         Submit
@@ -47,13 +47,13 @@ const ApiTest: React.FC = () => {
         Reject
       </button>
       <hr/>
-      {list.isRejected() && (
+      {AsyncState.isRejected(list) && (
         <div>
           <b>Error: </b> <span>{list.error.message}</span>
           <br/>
         </div>
       )}
-      {list.isResolved() ? (
+      {AsyncState.isResolved(list) ? (
         <div>
           <b>
             List (retrieved at {new Date(list.resolvedAt).toLocaleString()}):
@@ -77,7 +77,7 @@ const ApiTest: React.FC = () => {
           </ul>
         </div>
       ) : (
-        list.isPending() && <i>Loading...</i>
+        AsyncState.isPending(list) && <i>Loading...</i>
       )}
     </div>
   );

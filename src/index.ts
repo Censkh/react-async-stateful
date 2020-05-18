@@ -5,6 +5,7 @@ import AsyncState from "./AsyncState";
 
 export * from "./Types";
 export * from "./Utils";
+export * from "./StatefulPromise";
 
 export * from "./react";
 export * from "./redux";

@@ -1,6 +1,6 @@
 {
   "name": "react-async-stateful",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Declarative async state to reduce boilerplate",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
@@ -27,12 +27,8 @@
   "files": [
     "LICENSE",
     "README.md",
-    "index.js",
-    "index.d.ts",
     "esm/",
-    "cjs/",
-    "react/",
-    "redux/"
+    "cjs/"
   ],
   "peerDependencies": {
     "react": ">=16.8.0",
