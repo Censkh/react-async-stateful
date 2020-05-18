@@ -16,15 +16,15 @@ const asyncStateReducer = (
 ): AsyncState<any> => {
   switch (action.type) {
     case `${type}__RESET`:
-      return asyncState.reset();
+      return AsyncState.reset(asyncState);
     case `${type}__SUBMIT`:
-      return asyncState.submit();
+      return AsyncState.submit(asyncState);
     case `${type}__REFRESH`:
-      return asyncState.refresh();
+      return AsyncState.refresh(asyncState);
     case `${type}__RESOLVED`:
-      return asyncState.resolve(action.payload);
+      return AsyncState.resolve(asyncState, action.payload);
     case `${type}__REJECTED`:
-      return asyncState.reject(action.payload);
+      return AsyncState.reject(asyncState, action.payload);
     default:
       return asyncState;
   }

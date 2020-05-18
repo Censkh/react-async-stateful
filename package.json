@@ -1,6 +1,6 @@
 {
   "name": "react-async-stateful",
-  "version": "0.4.0",
+  "version": "0.5.0-alpha1",
   "description": "Declarative async state to reduce boilerplate",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",

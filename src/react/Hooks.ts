@@ -23,9 +23,9 @@ const createUpdateFn = <T>(
 ): UpdateAsyncStateFn<T> => {
   return async (promiseOrAsyncFn, options): Promise<AsyncState<T>> => {
     if (options?.refresh) {
-      setAsyncState(currentState => currentState.refresh());
+      setAsyncState(currentState => AsyncState.refresh(currentState));
     } else {
-      setAsyncState(currentState => currentState.submit());
+      setAsyncState(currentState => AsyncState.submit(currentState));
     }
 
     let valueResolve: (state: AsyncState<T>) => void = () => {
@@ -55,13 +55,13 @@ const createUpdateFn = <T>(
       }
 
       setAsyncState(currentState => {
-        const updatedState = currentState.resolve(value);
+        const updatedState = AsyncState.resolve(currentState, value);
         valueResolve(updatedState);
         return updatedState;
       });
     } catch (error) {
       setAsyncState(currentState => {
-        const updatedState = currentState.reject(error);
+        const updatedState = AsyncState.reject(currentState, error);
         valueResolve(updatedState);
         if (process.env.NODE_ENV === "development") {
           console.error("[react-async-stateful] Updating async state failed:");
