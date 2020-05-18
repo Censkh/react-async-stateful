@@ -1,8 +1,8 @@
-import * as React from "react";
-import { useCallback, useState } from "react";
-import { unstable__lens, useAsyncState } from "../..";
-import { ComplexData, getComplexData } from "../api";
-import { isResolved, match } from "../../src";
+import * as React                      from "react";
+import {useCallback, useState}         from "react";
+import {unstable__lens, useAsyncState} from "../..";
+import {ComplexData, getComplexData}   from "../api";
+import {isResolved, match}             from "../../src";
 
 const Lens: React.FC = () => {
   const [data, _, updateData] = useAsyncState<ComplexData>();
@@ -14,14 +14,14 @@ const Lens: React.FC = () => {
         const response = await getComplexData();
         return response.data;
       },
-      { refresh: true }
+      {refresh: true},
     );
   }, []);
 
   const list = unstable__lens(
     data,
     value => value.levels[value.currentLevel] ?? [],
-    []
+    [],
   );
 
   return (
@@ -30,7 +30,7 @@ const Lens: React.FC = () => {
       <button disabled={data.pending} onClick={fetch}>
         Get Data
       </button>
-      <br />
+      <br/>
       <p>
         <span>Level: </span>
         {match(
@@ -41,17 +41,17 @@ const Lens: React.FC = () => {
               <>
                 {level} / 10{" "}
                 {value.currentLevel === level && (
-                  <span style={{ color: "green" }}>(current level!)</span>
+                  <span style={{color: "green"}}>(current level!)</span>
                 )}
               </>
             ),
             rejected: error => (
-              <span style={{ color: "red" }}>
+              <span style={{color: "red"}}>
                 Error occurred: {error.message}
               </span>
-            )
+            ),
           },
-          <i>loading...</i>
+          <i>loading...</i>,
         )}
       </p>
 
@@ -75,8 +75,8 @@ const Lens: React.FC = () => {
             <li key={index}>
               <span
                 style={{
-                  width: "26px",
-                  display: "inline-block"
+                  width  : "26px",
+                  display: "inline-block",
                 }}
               >
                 {value.icon}

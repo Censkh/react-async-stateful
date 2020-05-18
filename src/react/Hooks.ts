@@ -1,5 +1,5 @@
 import {Dispatch, SetStateAction, useMemo, useState} from "react";
-import AsyncState from "../AsyncState";
+import AsyncState                                    from "../AsyncState";
 
 export type PromiseOrAsyncFn<T> = Promise<T> | (() => Promise<T>);
 
@@ -38,9 +38,9 @@ const createUpdateFn = <T>(
 
     try {
       const promise =
-        typeof promiseOrAsyncFn === "function"
-          ? promiseOrAsyncFn()
-          : promiseOrAsyncFn;
+              typeof promiseOrAsyncFn === "function"
+                ? promiseOrAsyncFn()
+                : promiseOrAsyncFn;
       if (typeof promise.then !== "function") {
         throw new Error(
           typeof promiseOrAsyncFn === "function"

@@ -10,7 +10,7 @@ import {
   AsyncStateSubmitting,
   AsyncStateSubmitType,
   MatchCases,
-} from "./Types";
+}                    from "./Types";
 import {NotFunction} from "./Utils";
 
 interface CreateOptions {

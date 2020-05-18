@@ -1,8 +1,7 @@
-import * as React from "react";
-import { useCallback } from "react";
-import * as AsyncState from "../..";
-import { useAsyncState } from "../..";
-import { FoodItem, getList } from "../api";
+import * as React          from "react";
+import {useCallback}       from "react";
+import {useAsyncState}     from "../..";
+import {FoodItem, getList} from "../api";
 
 const ApiTest: React.FC = () => {
   const [list, _, updateList] = useAsyncState([] as FoodItem[]);
@@ -13,10 +12,10 @@ const ApiTest: React.FC = () => {
           const response = await getList();
           return response.data;
         },
-        { refresh: refresh }
+        {refresh: refresh},
       );
     },
-    [list]
+    [list],
   );
 
   const reject = useCallback(() => {
@@ -36,7 +35,7 @@ const ApiTest: React.FC = () => {
         Source Code
       </a>
       <p>
-        <b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span>
+        <b>Pending:</b> <span>{list.isPending().toString()}</span>
       </p>
       <button disabled={list.pending} onClick={() => submit(false)}>
         Submit
@@ -47,14 +46,14 @@ const ApiTest: React.FC = () => {
       <button disabled={list.pending} onClick={() => reject()}>
         Reject
       </button>
-      <hr />
-      {AsyncState.isRejected(list) && (
+      <hr/>
+      {list.isRejected() && (
         <div>
           <b>Error: </b> <span>{list.error.message}</span>
-          <br />
+          <br/>
         </div>
       )}
-      {AsyncState.isResolved(list) ? (
+      {list.isResolved() ? (
         <div>
           <b>
             List (retrieved at {new Date(list.resolvedAt).toLocaleString()}):
@@ -65,8 +64,8 @@ const ApiTest: React.FC = () => {
                 <li key={index}>
                   <span
                     style={{
-                      width: "26px",
-                      display: "inline-block"
+                      width  : "26px",
+                      display: "inline-block",
                     }}
                   >
                     {value.icon}
@@ -78,7 +77,7 @@ const ApiTest: React.FC = () => {
           </ul>
         </div>
       ) : (
-        AsyncState.isPending(list) && <i>Loading...</i>
+        list.isPending() && <i>Loading...</i>
       )}
     </div>
   );

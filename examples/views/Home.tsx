@@ -1,14 +1,14 @@
 import * as React from "react";
-import Markdown from "react-markdown";
+import Markdown   from "react-markdown";
 
-import { readFileSync } from "fs";
+import {readFileSync} from "fs";
 
 const readme = readFileSync("./README.md", "utf-8");
 
 const Home: React.FC = () => {
   return (
     <div>
-      <Markdown source={readme} />
+      <Markdown source={readme}/>
     </div>
   );
 };

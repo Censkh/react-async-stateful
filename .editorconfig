@@ -2,24 +2,32 @@
 root = true
 
 [*]
-indent_size = 2
 indent_style = space
-insert_final_newline = false
+indent_size = 2
 end_of_line = lf
+charset = utf-8
 trim_trailing_whitespace = true
+insert_final_newline = true
 
-ij_javascript_use_double_quotes = true
-ij_javascript_force_quote_style = true
-ij_javascript_spaces_within_parentheses = false
-ij_javascript_space_before_function_left_parenth = false
-ij_javascript_enforce_trailing_comma = whenmultiline
-ij_javascript_force_semicolon_style = true
-ij_javascript_use_semicolon_after_statement = true
-
+ij_typescript_align_imports = true
+ij_typescript_align_var_statements = 1
+ij_typescript_align_object_properties = 2
 ij_typescript_use_double_quotes = true
 ij_typescript_force_quote_style = true
+ij_typescript_force_semicolon_style = true
+ij_typescript_use_semicolon_after_statement = true
 ij_typescript_spaces_within_parentheses = false
 ij_typescript_space_before_function_left_parenth = false
 ij_typescript_enforce_trailing_comma = whenmultiline
-ij_typescript_force_semicolon_style = true
-ij_typescript_use_semicolon_after_statement = true
+
+[*.jsx]
+indent_size = 2
+
+[*.tsx]
+indent_size = 2
+
+[*.scss]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

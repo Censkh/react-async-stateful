@@ -3,10 +3,10 @@ import AsyncState from "./AsyncState";
 export type AsyncStateSubmitType = "submit" | "refresh";
 
 export enum AsyncStateActionType {
-  Reset = "reset",
-  Submit = "submit",
+  Reset   = "reset",
+  Submit  = "submit",
   Refresh = "submit",
-  Reject = "reject",
+  Reject  = "reject",
   Resolve = "resolve",
 }
 

@@ -6,7 +6,7 @@ import {
   AsyncActionHandler,
   Dispatch,
   Thunk,
-} from "./ReduxTypes";
+}                 from "./ReduxTypes";
 import AsyncState from "../AsyncState";
 
 const asyncStateReducer = (

@@ -16,7 +16,7 @@ export interface ComplexData {
 }
 
 export const getList = async (
-  itemCount?: number
+  itemCount?: number,
 ): Promise<Response<Array<FoodItem>>> => {
   await new Promise(resolve => setTimeout(resolve, 2500));
 
@@ -29,7 +29,7 @@ export const getList = async (
 
   return {
     status: 200,
-    data: Array.from(set).map(index => food[index])
+    data  : Array.from(set).map(index => food[index]),
   };
 };
 
@@ -41,14 +41,14 @@ export const getComplexData = async (): Promise<Response<ComplexData>> => {
       .map(async () => {
         const response = await getList(2 + Math.floor(Math.random() * 10));
         return response.data;
-      })
+      }),
   );
 
   return {
     status: 200,
-    data: {
+    data  : {
       currentLevel: 3,
-      levels: levels
-    }
+      levels      : levels,
+    },
   };
 };
