@@ -104,7 +104,6 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
 
   static submit<T>(asyncState: AsyncState<T>): AsyncState<T> {
     return Object.assign({}, asyncState, {
-      ...asyncState,
       pending   : true,
       pendingAt : Date.now(),
       rejected  : false,
@@ -117,7 +116,6 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
 
   static refresh<T>(asyncState: AsyncState<T>): AsyncState<T> {
     return Object.assign({}, asyncState, {
-      ...asyncState,
       pending   : true,
       pendingAt : Date.now(),
       settled   : false,
