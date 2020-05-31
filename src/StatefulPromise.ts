@@ -22,18 +22,18 @@ export interface StatefulPromise<T> extends Promise<T>, AsyncStateBase<T> {
 }
 
 export const toStateful = <T>(promise: Promise<T>): StatefulPromise<T> => {
-    const stateful: StatefulPromise<T> = Object.assign(
-        promise,
-        AsyncState.create<T>(undefined, { pending: true }),
-    ) as any;
-    return stateful.then(
-        (data) => {
-            Object.assign(stateful, AsyncState.resolve(stateful, data));
-            return data;
-        },
-        (error: Error) => {
-            Object.assign(stateful, AsyncState.reject(stateful, error));
-            throw error;
-        },
-    );
+  const stateful: StatefulPromise<T> = Object.assign(
+    promise,
+    AsyncState.create<T>(undefined, {pending: true}),
+  ) as any;
+  return stateful.then(
+    (data) => {
+      Object.assign(stateful, AsyncState.resolve(stateful, data));
+      return data;
+    },
+    (error: Error) => {
+      Object.assign(stateful, AsyncState.reject(stateful, error));
+      throw error;
+    },
+  );
 };

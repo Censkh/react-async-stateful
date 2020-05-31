@@ -23,6 +23,8 @@ export interface AsyncStateBase<T> {
   readonly value: T | undefined;
   readonly error: Error | undefined;
   readonly submitType: AsyncStateSubmitType | undefined;
+  readonly cancelled: boolean;
+  readonly cancelledAt: number | null;
 }
 
 export interface AsyncStateSettled<T> extends AsyncState<T> {
@@ -53,6 +55,12 @@ export interface AsyncStatePending<T> extends AsyncState<T> {
   readonly submitType: AsyncStateSubmitType;
   readonly settled: false;
 }
+
+export interface AsyncStateCancelled<T> extends AsyncState<T> {
+  readonly cancelled: true;
+  readonly cancelledAt: number;
+}
+
 
 export interface AsyncStateSubmitting<T> extends AsyncStatePending<T> {
   readonly resolved: false;

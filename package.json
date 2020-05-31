@@ -1,6 +1,6 @@
 {
   "name": "react-async-stateful",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "description": "Declarative async state to reduce boilerplate",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
@@ -12,8 +12,8 @@
     "build:esm": "tsc --module es2015 --target es5 --outDir esm",
     "build:cjs": "tsc --module commonjs --target es5 --outDir cjs",
     "build:watch": "npm-run-all -p \"build:esm -- -w\" \"build:cjs -- -w\"",
-    "examples:start": "parcel examples/index.html --out-dir ./public",
-    "examples:build": "parcel build examples/index.html --out-dir ./public"
+    "example:start": "parcel examples/index.html --out-dir ./public",
+    "example:build": "parcel build examples/index.html --out-dir ./public"
   },
   "keywords": [
     "typescript",

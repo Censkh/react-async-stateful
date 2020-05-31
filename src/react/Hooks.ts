@@ -1,31 +1,35 @@
 import {Dispatch, SetStateAction, useMemo, useState} from "react";
 import AsyncState                                    from "../AsyncState";
 
-export type PromiseOrAsyncFn<T> = Promise<T> | (() => Promise<T>);
+export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
 
 interface UpdateAsyncStateOptions {
   refresh?: boolean;
 }
 
-export type UpdateAsyncStateFn<T> = (
-  promiseOrAsyncFn: PromiseOrAsyncFn<T>,
+export type UpdateAsyncStateFunction<T> = (
+  promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
   options?: UpdateAsyncStateOptions,
 ) => Promise<AsyncState<T>>;
 
 export type UseAsyncStateResult<T> = [
   AsyncState<T>,
   Dispatch<SetStateAction<AsyncState<T>>>,
-  UpdateAsyncStateFn<T>
+  UpdateAsyncStateFunction<T>
 ];
 
-const createUpdateFn = <T>(
+export const createUpdateFunction = <T>(
   setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>,
-): UpdateAsyncStateFn<T> => {
+): UpdateAsyncStateFunction<T> => {
   return async (promiseOrAsyncFn, options): Promise<AsyncState<T>> => {
     if (options?.refresh) {
-      setAsyncState(currentState => AsyncState.refresh(currentState));
+      setAsyncState(currentState => {
+        return AsyncState.refresh(currentState);
+      });
     } else {
-      setAsyncState(currentState => AsyncState.submit(currentState));
+      setAsyncState(currentState => {
+        return AsyncState.submit(currentState);
+      });
     }
 
     let valueResolve: (state: AsyncState<T>) => void = () => {
@@ -41,11 +45,11 @@ const createUpdateFn = <T>(
                 ? promiseOrAsyncFn()
                 : promiseOrAsyncFn;
       if (typeof promise.then !== "function") {
-        throw new Error(
+        throw new Error(`[react-async-stateful] ${
           typeof promiseOrAsyncFn === "function"
             ? "Function provided did not return a promise"
-            : "First argument was not a promise or an async function",
-        );
+            : "First argument was not a promise or an async function"
+        }`);
       }
 
       let value = await promise;
@@ -77,9 +81,9 @@ const createUpdateFn = <T>(
 };
 
 export function useAsyncState<T>(defaultValue?: T): UseAsyncStateResult<T> {
-  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue),);
-  const updateFn = useMemo<UpdateAsyncStateFn<T>>(
-    () => createUpdateFn(setAsyncState),
+  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue));
+  const updateFn = useMemo<UpdateAsyncStateFunction<T>>(
+    () => createUpdateFunction(setAsyncState),
     [],
   );
 

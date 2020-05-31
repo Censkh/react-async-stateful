@@ -1,12 +1,12 @@
 import {
   AsyncStateBase,
+  AsyncStateCancelled,
   AsyncStatePending,
   AsyncStatePristine,
   AsyncStateRejected,
   AsyncStateResolved,
   AsyncStateSettled,
   AsyncStateStatus,
-  AsyncStateSubmitType,
   MatchCases,
 }                    from "./Types";
 import {NotFunction} from "./Utils";
@@ -19,7 +19,7 @@ type CreateOptionsPending = CreateOptions & {
   pending: true;
 };
 
-const DEFAULT_STATE: AsyncStateBase<any> =  {
+const DEFAULT_STATE: AsyncStateBase<any> = {
   defaultValue: undefined,
   error       : undefined,
   pending     : false,
@@ -32,21 +32,26 @@ const DEFAULT_STATE: AsyncStateBase<any> =  {
   settledAt   : null,
   submitType  : undefined,
   value       : undefined,
+  cancelled   : false,
+  cancelledAt : null,
 };
 
 export default class AsyncState<T> implements AsyncStateBase<T> {
-  readonly defaultValue: T | undefined = DEFAULT_STATE.defaultValue;
-  readonly error: Error | undefined = DEFAULT_STATE.error;
-  readonly pending: boolean = DEFAULT_STATE.pending;
-  readonly pendingAt: number | null = DEFAULT_STATE.pendingAt;
-  readonly rejected: boolean = DEFAULT_STATE.rejected;
-  readonly rejectedAt: number | null = DEFAULT_STATE.rejectedAt;
-  readonly resolved: boolean = DEFAULT_STATE.resolved;
-  readonly resolvedAt: number | null = DEFAULT_STATE.resolvedAt;
-  readonly settled: boolean = DEFAULT_STATE.settled;
-  readonly settledAt: number | null = DEFAULT_STATE.settledAt;
-  readonly submitType: AsyncStateSubmitType | undefined = DEFAULT_STATE.submitType;
-  readonly value: T | undefined = DEFAULT_STATE.value;
+  readonly defaultValue = DEFAULT_STATE.defaultValue;
+  readonly error = DEFAULT_STATE.error;
+  readonly pending = DEFAULT_STATE.pending;
+  readonly pendingAt = DEFAULT_STATE.pendingAt;
+  readonly rejected = DEFAULT_STATE.rejected;
+  readonly rejectedAt = DEFAULT_STATE.rejectedAt;
+  readonly resolved = DEFAULT_STATE.resolved;
+  readonly resolvedAt = DEFAULT_STATE.resolvedAt;
+  readonly settled = DEFAULT_STATE.settled;
+  readonly settledAt = DEFAULT_STATE.settledAt;
+  readonly submitType = DEFAULT_STATE.submitType;
+  readonly value = DEFAULT_STATE.value;
+  readonly cancelled = DEFAULT_STATE.cancelled;
+  readonly cancelledAt = DEFAULT_STATE.cancelledAt;
+
 
   private constructor() {
     // prevents new AsyncState()
@@ -73,12 +78,13 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   static resolve<T>(asyncState: AsyncState<T>, value: T): AsyncState<T> {
     if (value === undefined) {
       throw new Error(
-        "Cannot resolve async asyncState to 'undefined', did you mean 'reset(asyncState)'?",
+        "[react-async-stateful] Cannot resolve async asyncState to 'undefined', did you mean 'reset(asyncState)'?",
       );
     }
 
     return Object.assign({}, asyncState, {
       error     : undefined,
+      cancelled : false,
       pending   : false,
       rejected  : false,
       resolved  : true,
@@ -92,6 +98,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   static reject<T>(asyncState: AsyncState<T>, error: Error): AsyncState<T> {
     return Object.assign({}, asyncState, {
       error     : error,
+      cancelled : false,
       pending   : false,
       rejected  : true,
       rejectedAt: Date.now(),
@@ -99,11 +106,26 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       settledAt : Date.now(),
       resolved  : false,
       value     : asyncState.defaultValue ?? undefined,
-    }) ;
+    });
+  }
+
+  static cancel<T>(asyncState: AsyncState<T>): AsyncState<T> {
+    return Object.assign({}, asyncState, {
+      error      : null,
+      cancelled  : true,
+      cancelledAt: Date.now(),
+      pending    : false,
+      rejected   : false,
+      settled    : false,
+      resolved   : false,
+      value      : asyncState.defaultValue ?? undefined,
+    });
   }
 
   static submit<T>(asyncState: AsyncState<T>): AsyncState<T> {
     return Object.assign({}, asyncState, {
+      error     : null,
+      cancelled : false,
       pending   : true,
       pendingAt : Date.now(),
       rejected  : false,
@@ -116,6 +138,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
 
   static refresh<T>(asyncState: AsyncState<T>): AsyncState<T> {
     return Object.assign({}, asyncState, {
+      cancelled : false,
       pending   : true,
       pendingAt : Date.now(),
       settled   : false,
@@ -152,6 +175,10 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     return asyncState.resolved;
   }
 
+  static isCancelled<T>(asyncState: AsyncState<T>): asyncState is AsyncStateCancelled<T> {
+    return asyncState.cancelled;
+  }
+
   static isPristine<T>(asyncState: AsyncState<T>): asyncState is AsyncStatePristine<T> {
     return !AsyncState.isRejected(asyncState) && !AsyncState.isResolved(asyncState) && !AsyncState.isPending(asyncState);
   }
@@ -165,14 +192,14 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
    *
    * @throws {Error} if `asyncState` is not resolved
    */
-  static apply<T>(asyncState: AsyncState<T>, func: (value: T) => T): AsyncState<T> {
+  static patch<T>(asyncState: AsyncState<T>, func: (value: T) => T): AsyncState<T> {
     if (AsyncState.isResolved(asyncState)) {
       return Object.assign({}, asyncState, {
         value: func(asyncState.value),
       });
     }
     throw new Error(
-      `Can only patch 'resolved' states, asyncState asyncState was ${AsyncState.getStatus(asyncState)}`,
+      `[react-async-stateful] Can only patch 'resolved' states, asyncState was ${AsyncState.getStatus(asyncState)}`,
     );
   }
 
