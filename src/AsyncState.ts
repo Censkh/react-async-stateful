@@ -37,7 +37,9 @@ const DEFAULT_STATE: AsyncStateBase<any> = {
 };
 
 export default class AsyncState<T> implements AsyncStateBase<T> {
-  readonly defaultValue = DEFAULT_STATE.defaultValue;
+  readonly defaultValue: T | undefined = DEFAULT_STATE.defaultValue;
+  readonly value: T | undefined = DEFAULT_STATE.value;
+
   readonly error = DEFAULT_STATE.error;
   readonly pending = DEFAULT_STATE.pending;
   readonly pendingAt = DEFAULT_STATE.pendingAt;
@@ -48,7 +50,6 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   readonly settled = DEFAULT_STATE.settled;
   readonly settledAt = DEFAULT_STATE.settledAt;
   readonly submitType = DEFAULT_STATE.submitType;
-  readonly value = DEFAULT_STATE.value;
   readonly cancelled = DEFAULT_STATE.cancelled;
   readonly cancelledAt = DEFAULT_STATE.cancelledAt;
 
