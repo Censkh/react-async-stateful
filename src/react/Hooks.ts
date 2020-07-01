@@ -1,5 +1,5 @@
-import {Dispatch, SetStateAction, useMemo, useState} from "react";
-import AsyncState                                    from "../AsyncState";
+import {Dispatch, SetStateAction, useMemo, useState}     from "react";
+import AsyncState, {CreateOptions, CreateOptionsPending} from "../AsyncState";
 
 export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
 
@@ -80,8 +80,8 @@ export const createUpdateFunction = <T>(
   };
 };
 
-export function useAsyncState<T>(defaultValue?: T): UseAsyncStateResult<T> {
-  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue));
+export function useAsyncState<T>(defaultValue?: T, options?: CreateOptionsPending | CreateOptions): UseAsyncStateResult<T> {
+  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue, options));
   const updateFn = useMemo<UpdateAsyncStateFunction<T>>(
     () => createUpdateFunction(setAsyncState),
     [],

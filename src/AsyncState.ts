@@ -11,11 +11,11 @@ import {
 }                    from "./Types";
 import {NotFunction} from "./Utils";
 
-interface CreateOptions {
+export interface CreateOptions {
   pending?: boolean;
 }
 
-type CreateOptionsPending = CreateOptions & {
+export type CreateOptionsPending = CreateOptions & {
   pending: true;
 };
 
@@ -64,6 +64,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   ): AsyncState<T> {
     return Object.assign({}, DEFAULT_STATE, {
       defaultValue,
+      value: defaultValue ?? undefined,
       pending: options.pending || false,
     });
   }
