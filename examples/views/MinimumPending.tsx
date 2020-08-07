@@ -1,22 +1,23 @@
-import * as React          from "react";
-import {useCallback}       from "react";
-import AsyncState, {useAsyncState}     from "../..";
-import {FoodItem, getList} from "../api";
+import * as React                  from "react";
+import {useCallback, useState}     from "react";
+import AsyncState, {useAsyncState} from "../..";
+import {FoodItem, getList}         from "../api";
 
-const ApiTest: React.FC = () => {
-  const [list, _, updateList] = useAsyncState([] as FoodItem[]);
+const MinimumPending: React.FC = () => {
+  const [minimumPending, setMinimumPending] = useState(0);
+
+  const [list, , updateList] = useAsyncState([] as FoodItem[]);
   const submit = useCallback(
     (refresh: boolean) => {
       updateList(
         async () => {
-          await new Promise(resolve => setTimeout(resolve, 2500));
           const response = await getList();
           return response.data;
         },
-        {refresh: refresh},
+        {refresh: refresh, minimumPending: minimumPending},
       );
     },
-    [list],
+    [list, minimumPending],
   );
 
   const reject = useCallback(() => {
@@ -25,18 +26,23 @@ const ApiTest: React.FC = () => {
     });
   }, [list]);
 
+
   return (
     <div>
-      <h3>Api Test</h3>
+      <h3>Minimum Pending</h3>
       <a
         href={
-          "https://github.com/Censkh/react-async-stateful/blob/master/examples/views/ApiTest.tsx"
+          "https://github.com/Censkh/react-async-stateful/blob/master/examples/views/MinimumPending.tsx"
         }
       >
         Source Code
       </a>
       <p>
         <b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span>
+        <br/>
+        <b>Minimum Pending:</b> <input value={minimumPending}
+                                       onChange={(e) => setMinimumPending(Number(e.target.value))}
+                                       type={"number"}/>
       </p>
       <button disabled={list.pending} onClick={() => submit(false)}>
         Submit
@@ -84,4 +90,4 @@ const ApiTest: React.FC = () => {
   );
 };
 
-export default ApiTest;
+export default MinimumPending;

@@ -5,6 +5,7 @@ export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
 
 interface UpdateAsyncStateOptions {
   refresh?: boolean;
+  minimumPending?: number;
 }
 
 export type UpdateAsyncStateFunction<T> = (
@@ -52,7 +53,12 @@ export const createUpdateFunction = <T>(
         }`);
       }
 
-      let value = await promise;
+      let minimumPendingPromise: Promise<void> | undefined = undefined;
+      if (options?.minimumPending) {
+        minimumPendingPromise = new Promise<void>((resolve) => setTimeout(resolve, options.minimumPending));
+      }
+
+      let [value] = await Promise.all([promise, minimumPendingPromise]);
       if (value === undefined) {
         // shouldn't resolve to undefined, as that denotes we haven't resolved at all
         value = null as any;

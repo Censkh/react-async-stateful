@@ -1,5 +1,11 @@
+## 0.6.1
+
+### Features
+- `minimumPending` option to update function
+
+
 ## 0.2.0
 
-Features:
+### Features:
 - redux support ([docs](./docs/redux.md))
 - `patch()` method

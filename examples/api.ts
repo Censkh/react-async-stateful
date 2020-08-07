@@ -18,8 +18,6 @@ export interface ComplexData {
 export const getList = async (
   itemCount?: number,
 ): Promise<Response<Array<FoodItem>>> => {
-  await new Promise(resolve => setTimeout(resolve, 2500));
-
   itemCount =
     itemCount !== undefined ? itemCount : 2 + Math.ceil(Math.random() * 5);
   const set = new Set<number>();
