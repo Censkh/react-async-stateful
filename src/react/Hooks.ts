@@ -1,12 +1,7 @@
-import {Dispatch, SetStateAction, useMemo, useState}     from "react";
+import {Dispatch, SetStateAction, useCallback, useState} from "react";
 import AsyncState, {CreateOptions, CreateOptionsPending} from "../AsyncState";
-
-export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
-
-interface UpdateAsyncStateOptions {
-  refresh?: boolean;
-  minimumPending?: number;
-}
+import {updateAsyncState, UpdateAsyncStateOptions}       from "../Updater";
+import {PromiseOrAsyncFunction}                          from "../Types";
 
 export type UpdateAsyncStateFunction<T> = (
   promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
@@ -19,79 +14,39 @@ export type UseAsyncStateResult<T> = [
   UpdateAsyncStateFunction<T>
 ];
 
-export const createUpdateFunction = <T>(
-  setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>,
-): UpdateAsyncStateFunction<T> => {
-  return async (promiseOrAsyncFn, options): Promise<AsyncState<T>> => {
-    if (options?.refresh) {
-      setAsyncState(currentState => {
-        return AsyncState.refresh(currentState);
-      });
-    } else {
-      setAsyncState(currentState => {
-        return AsyncState.submit(currentState);
-      });
-    }
-
-    let valueResolve: (state: AsyncState<T>) => void = () => {
-      throw new Error("This should never happen!");
-    };
-    const valuePromise = new Promise<AsyncState<T>>(resolve => {
-      valueResolve = resolve;
-    });
-
-    try {
-      const promise =
-              typeof promiseOrAsyncFn === "function"
-                ? promiseOrAsyncFn()
-                : promiseOrAsyncFn;
-      if (typeof promise.then !== "function") {
-        throw new Error(`[react-async-stateful] ${
-          typeof promiseOrAsyncFn === "function"
-            ? "Function provided did not return a promise"
-            : "First argument was not a promise or an async function"
-        }`);
-      }
-
-      let minimumPendingPromise: Promise<void> | undefined = undefined;
-      if (options?.minimumPending) {
-        minimumPendingPromise = new Promise<void>((resolve) => setTimeout(resolve, options.minimumPending));
-      }
-
-      let [value] = await Promise.all([promise, minimumPendingPromise]);
-      if (value === undefined) {
-        // shouldn't resolve to undefined, as that denotes we haven't resolved at all
-        value = null as any;
-      }
-
-      setAsyncState(currentState => {
-        const updatedState = AsyncState.resolve(currentState, value);
-        valueResolve(updatedState);
-        return updatedState;
-      });
-    } catch (error) {
-      setAsyncState(currentState => {
-        const updatedState = AsyncState.reject(currentState, error);
-        valueResolve(updatedState);
-        if (process.env.NODE_ENV === "development") {
-          console.error("[react-async-stateful] Updating async state failed:");
-          console.error(error);
-        }
-        return updatedState;
-      });
-    }
-
-    // wait for react to have updated our state
-    return await valuePromise;
-  };
-};
-
 export function useAsyncState<T>(defaultValue?: T, options?: CreateOptionsPending | CreateOptions): UseAsyncStateResult<T> {
   const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue, options));
-  const updateFn = useMemo<UpdateAsyncStateFunction<T>>(
-    () => createUpdateFunction(setAsyncState),
+  const updateFn = useCallback<UpdateAsyncStateFunction<T>>(
+    (promiseOrAsyncFn, options) => updateAsyncState(setAsyncState, promiseOrAsyncFn, options),
     [],
   );
 
   return [asyncState, setAsyncState, updateFn];
+}
+
+export type UpdateAsyncStateGroupFunction<T, K extends string | number> = (
+  key: K,
+  promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
+  options?: UpdateAsyncStateOptions,
+) => Promise<AsyncState<T>>;
+
+export type UseAsyncStateGroupResult<T, K extends string | number> = [
+  Record<K, AsyncState<T>>,
+  Dispatch<SetStateAction<Record<K, AsyncState<T>>>>,
+  UpdateAsyncStateGroupFunction<T, K>
+];
+
+export function useAsyncStateGroup<T, K extends string | number = string>(defaultValue?: Record<K, AsyncState<T>>, defaultStateGetter?: () => AsyncState<T>): UseAsyncStateGroupResult<T, K> {
+  const [stateGroup, setStateGroup] = useState((defaultValue || {}) as Record<K, AsyncState<T>>);
+
+  const updateStateGroup = useCallback<UpdateAsyncStateGroupFunction<T, K>>((key, promiseOrAsyncFn, options) => {
+    return updateAsyncState((state) => {
+      return setStateGroup(prevState => {
+        const newState = typeof state === "function" ? state(prevState[key] || (defaultStateGetter ? defaultStateGetter() : AsyncState.create())) : state;
+        return Object.assign({}, prevState, {[key]: newState});
+      });
+    }, promiseOrAsyncFn, options);
+  }, []);
+
+  return [stateGroup, setStateGroup, updateStateGroup];
 }

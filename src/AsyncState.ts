@@ -64,7 +64,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   ): AsyncState<T> {
     return Object.assign({}, DEFAULT_STATE, {
       defaultValue,
-      value: defaultValue ?? undefined,
+      value  : defaultValue ?? undefined,
       pending: options.pending || false,
     });
   }

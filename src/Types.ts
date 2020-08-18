@@ -1,5 +1,7 @@
 import AsyncState from "./AsyncState";
 
+export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
+
 export type AsyncStateSubmitType = "submit" | "refresh";
 
 export enum AsyncStateActionType {
