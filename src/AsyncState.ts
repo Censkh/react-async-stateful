@@ -205,11 +205,13 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     );
   }
 
-  static map<T, R = T>(asyncState: AsyncState<T>, mapFunc: (value: T) => R): AsyncState<R> {
+  static map<T, R = T>(asyncState: AsyncState<T>, mapFunc: (value: T) => R, defaultValue?: R): AsyncState<R> {
     const mapped:AsyncState<R> = this.clone(asyncState) as any;
     if (this.isResolved(asyncState)) {
       const result = mapFunc(asyncState.value);
       Object.assign(mapped, {value: result});
+    } else {
+      Object.assign(mapped, {value: defaultValue});
     }
     return mapped;
   }
