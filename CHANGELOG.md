@@ -2,6 +2,7 @@
 
 ### Features: 
 - `useAsyncStateGroup` hook for a group of async states
+- `map` function
 
 ## 0.6.1
 

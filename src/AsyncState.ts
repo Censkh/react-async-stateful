@@ -205,6 +205,15 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     );
   }
 
+  static map<T, R = T>(asyncState: AsyncState<T>, mapFunc: (value: T) => R): AsyncState<R> {
+    const mapped:AsyncState<R> = this.clone(asyncState) as any;
+    if (this.isResolved(asyncState)) {
+      const result = mapFunc(asyncState.value);
+      Object.assign(mapped, {value: result});
+    }
+    return mapped;
+  }
+
   static match<T, V extends NotFunction>(asyncState: AsyncState<T>, cases: MatchCases<T, V>, defaultValue: V): V {
     const status = AsyncState.getStatus(asyncState);
     if (status in cases) {
