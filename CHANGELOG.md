@@ -1,4 +1,4 @@
-## 0.7.0
+## 0.8.0
 
 ### Features: 
 - `useAsyncStateGroup` hook for a group of async states
