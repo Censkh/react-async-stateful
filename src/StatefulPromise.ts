@@ -1,5 +1,6 @@
 import {AsyncStateBase} from "./Types";
 import AsyncState       from "./AsyncState";
+import * as Utils       from "./Utils";
 
 export interface StatefulPromise<T> extends Promise<T>, AsyncStateBase<T> {
   then<TResult1 = T, TResult2 = never>(
@@ -22,17 +23,17 @@ export interface StatefulPromise<T> extends Promise<T>, AsyncStateBase<T> {
 }
 
 export const toStateful = <T>(promise: Promise<T>): StatefulPromise<T> => {
-  const stateful: StatefulPromise<T> = Object.assign(
+  const stateful: StatefulPromise<T> = Utils.assign(
     promise,
     AsyncState.create<T>(undefined, {pending: true}),
   ) as any;
   return stateful.then(
     (data) => {
-      Object.assign(stateful, AsyncState.resolve(stateful, data));
+      Utils.assign(stateful, AsyncState.resolve(stateful, data));
       return data;
     },
     (error: Error) => {
-      Object.assign(stateful, AsyncState.reject(stateful, error));
+      Utils.assign(stateful, AsyncState.reject(stateful, error));
       throw error;
     },
   );

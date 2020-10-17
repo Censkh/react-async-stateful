@@ -8,6 +8,7 @@ import {
   Thunk,
 }                 from "./ReduxTypes";
 import AsyncState from "../AsyncState";
+import * as Utils from "../Utils";
 
 const asyncStateReducer = (
   type: string,
@@ -55,7 +56,7 @@ export const createAsyncStateReducer = <T>(
 };
 
 const actionCreator = <P = any>(type: string): ActionCreator<P> => {
-  return Object.assign(
+  return Utils.assign(
     (payload: P): Action<P> => {
       return {
         type,
@@ -78,7 +79,7 @@ const actionCreatorsImpl = <S,
 ): H extends undefined
   ? AsyncActionCreators<P, V>
   : AsyncActionCreatorsWithThunk<P, V> => {
-  const creators: AsyncActionCreators<P, V> = Object.assign(
+  const creators: AsyncActionCreators<P, V> = Utils.assign(
     (payload: P) => {
       return creators.submit(payload);
     },

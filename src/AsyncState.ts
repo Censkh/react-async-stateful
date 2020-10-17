@@ -9,6 +9,7 @@ import {
   AsyncStateStatus,
   MatchCases,
 }                    from "./Types";
+import * as Utils    from "./Utils";
 import {NotFunction} from "./Utils";
 
 export interface CreateOptions {
@@ -62,7 +63,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     defaultValue?: T,
     options: CreateOptionsPending | CreateOptions = {},
   ): AsyncState<T> {
-    return Object.assign({}, DEFAULT_STATE, {
+    return Utils.assign({}, DEFAULT_STATE, {
       defaultValue,
       value  : defaultValue ?? undefined,
       pending: options.pending || false,
@@ -70,7 +71,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static clone<T>(asyncState: AsyncState<T>): AsyncState<T> {
-    return Object.assign({}, asyncState);
+    return Utils.assign({}, asyncState);
   }
 
   static reset<T>(asyncState: AsyncState<T>): AsyncState<T> {
@@ -84,7 +85,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       );
     }
 
-    return Object.assign({}, asyncState, {
+    return Utils.assign({}, asyncState, {
       error     : undefined,
       cancelled : false,
       pending   : false,
@@ -98,7 +99,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static reject<T>(asyncState: AsyncState<T>, error: Error): AsyncState<T> {
-    return Object.assign({}, asyncState, {
+    return Utils.assign({}, asyncState, {
       error     : error,
       cancelled : false,
       pending   : false,
@@ -112,7 +113,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static cancel<T>(asyncState: AsyncState<T>): AsyncState<T> {
-    return Object.assign({}, asyncState, {
+    return Utils.assign({}, asyncState, {
       error      : null,
       cancelled  : true,
       cancelledAt: Date.now(),
@@ -125,7 +126,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static submit<T>(asyncState: AsyncState<T>): AsyncState<T> {
-    return Object.assign({}, asyncState, {
+    return Utils.assign({}, asyncState, {
       error     : null,
       cancelled : false,
       pending   : true,
@@ -139,7 +140,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static refresh<T>(asyncState: AsyncState<T>): AsyncState<T> {
-    return Object.assign({}, asyncState, {
+    return Utils.assign({}, asyncState, {
       cancelled : false,
       pending   : true,
       pendingAt : Date.now(),
@@ -196,7 +197,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
    */
   static patch<T>(asyncState: AsyncState<T>, func: (value: T) => T): AsyncState<T> {
     if (AsyncState.isResolved(asyncState)) {
-      return Object.assign({}, asyncState, {
+      return Utils.assign({}, asyncState, {
         value: func(asyncState.value),
       });
     }
@@ -206,12 +207,12 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   }
 
   static map<T, R = T>(asyncState: AsyncState<T>, mapFunc: (value: T) => R, defaultValue?: R): AsyncState<R> {
-    const mapped:AsyncState<R> = this.clone(asyncState) as any;
+    const mapped: AsyncState<R> = this.clone(asyncState) as any;
     if (this.isResolved(asyncState)) {
       const result = mapFunc(asyncState.value);
-      Object.assign(mapped, {value: result});
+      Utils.assign(mapped, {value: result});
     } else {
-      Object.assign(mapped, {value: defaultValue});
+      Utils.assign(mapped, {value: defaultValue});
     }
     return mapped;
   }

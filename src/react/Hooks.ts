@@ -2,6 +2,7 @@ import {Dispatch, SetStateAction, useCallback, useState} from "react";
 import AsyncState, {CreateOptions, CreateOptionsPending} from "../AsyncState";
 import {updateAsyncState, UpdateAsyncStateOptions}       from "../Updater";
 import {PromiseOrAsyncFunction}                          from "../Types";
+import * as Utils                                        from "../Utils";
 
 export type UpdateAsyncStateFunction<T> = (
   promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
@@ -43,7 +44,7 @@ export function useAsyncStateGroup<T, K extends string | number = string>(defaul
     return updateAsyncState((state) => {
       return setStateGroup(prevState => {
         const newState = typeof state === "function" ? state(prevState[key] || (defaultStateGetter ? defaultStateGetter() : AsyncState.create())) : state;
-        return Object.assign({}, prevState, {[key]: newState});
+        return Utils.assign({}, prevState, {[key]: newState});
       });
     }, promiseOrAsyncFn, options);
   }, []);
