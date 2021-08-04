@@ -1,19 +1,20 @@
 import {
-  Action,
   ActionCreator,
   AsyncActionCreators,
   AsyncActionCreatorsWithThunk,
   AsyncActionHandler,
-  Dispatch,
-  Thunk,
-}                 from "./ReduxTypes";
-import AsyncState from "../AsyncState";
-import * as Utils from "../Utils";
+  AsyncStateAction,
+  AsyncStateDispatch,
+  AsyncStateThunk,
+}                       from "./ReduxTypes";
+import AsyncState       from "../AsyncState";
+import * as Utils         from "../Utils";
+import {Meta, MetaUpdate} from "../Types";
 
 const asyncStateReducer = (
   type: string,
   asyncState: AsyncState<any>,
-  action: Action,
+  action: AsyncStateAction,
 ): AsyncState<any> => {
   switch (action.type) {
     case `${type}__RESET`:
@@ -25,7 +26,7 @@ const asyncStateReducer = (
     case `${type}__PENDING`:
       return AsyncState.pending(asyncState);
     case `${type}__RESOLVED`:
-      return AsyncState.resolve(asyncState, action.payload);
+      return AsyncState.resolve(asyncState, action.payload, action.extra);
     case `${type}__REJECTED`:
       return AsyncState.reject(asyncState, action.payload);
     default:
@@ -35,7 +36,7 @@ const asyncStateReducer = (
 
 export const createAsyncStateReducer = <T>(
   types: { [K in keyof T]?: string },
-): ((state: T, action: Action) => T) => {
+): ((state: T, action: AsyncStateAction) => T) => {
   return (state, action) => {
     let copy = null;
     const keys = Object.keys(types);
@@ -57,12 +58,13 @@ export const createAsyncStateReducer = <T>(
   };
 };
 
-const actionCreator = <P = any>(type: string): ActionCreator<P> => {
+const actionCreator = <P = any, E = void>(type: string): ActionCreator<P, E> => {
   return Utils.assign(
-    (payload: P): Action<P> => {
+    (payload: P, extra?: E): AsyncStateAction<P, E> => {
       return {
-        type,
-        payload,
+        type   : type,
+        payload: payload,
+        extra  : extra,
       };
     },
     {type: type},
@@ -75,13 +77,14 @@ const locks: Record<string, number> = {};
 const actionCreatorsImpl = <S,
   P = any,
   V = any,
+  M extends Meta = any,
   H extends undefined | AsyncActionHandler<S, P, V> = undefined>(
   type: string,
   handler?: H,
 ): H extends undefined
   ? AsyncActionCreators<P, V>
-  : AsyncActionCreatorsWithThunk<P, V> => {
-  const creators: AsyncActionCreators<P, V> = Utils.assign(
+  : AsyncActionCreatorsWithThunk<P, V, M> => {
+  const creators: AsyncActionCreators<P, V, M> = Utils.assign(
     (payload: P) => {
       return creators.submit(payload);
     },
@@ -90,7 +93,8 @@ const actionCreatorsImpl = <S,
       reset   : actionCreator<void>(`${type}__RESET`),
       submit  : actionCreator<P>(`${type}__SUBMIT`),
       refresh : actionCreator<P>(`${type}__REFRESH`),
-      resolved: actionCreator<V>(`${type}__RESOLVED`),
+      pending : actionCreator<void>(`${type}__PENDING`),
+      resolved: actionCreator<V, MetaUpdate<M>>(`${type}__RESOLVED`),
       rejected: actionCreator<Error>(`${type}__REJECTED`),
     },
   );
@@ -102,12 +106,12 @@ const actionCreatorsImpl = <S,
       handler: AsyncActionHandler<S, P, V>,
     ): void => {
       const original = creators[name];
-      (creators as any)[name] = (payload: P) => {
-        return async (dispatch: Dispatch, getState: () => S): Promise<any> => {
+      (creators as any)[name] = (payload: P, extra: any) => {
+        return async (dispatch: AsyncStateDispatch, getState: () => S): Promise<any> => {
           const operationId = lockIdCounter++;
           locks[type] = operationId;
 
-          const dispatchIfStillCurrentOp = (action: Action | Thunk) => {
+          const dispatchIfStillCurrentOp = (action: AsyncStateAction | AsyncStateThunk) => {
             if (locks[type] === operationId) {
               dispatch(action);
             }
@@ -120,7 +124,7 @@ const actionCreatorsImpl = <S,
           );
 
           const actionType = `${type}__${(name as string).toUpperCase()}`;
-          const action = {type: actionType, payload: payload};
+          const action = {type: actionType, payload: payload, extra};
 
           try {
             const result = await handler(action, dispatch, getState);
@@ -143,17 +147,17 @@ const actionCreatorsImpl = <S,
   return creators as any;
 };
 
-export const asyncStateActionCreators = <S, P = any, V = any>(
+export const asyncStateActionCreators = <S, P = any, V = any, M extends Meta = any>(
   type: string,
 ): AsyncActionCreators<P, V> => {
   return actionCreatorsImpl(type, undefined);
 };
 
-export const asyncStateActionCreatorsThunk = <S, P = any, V = any>(
+export const asyncStateActionCreatorsThunk = <S, P = any, V = any, M extends Meta = any>(
   type: string,
-  handler: AsyncActionHandler<S, P, V>,
+  handler?: AsyncActionHandler<S, P, V>,
 ): AsyncActionCreatorsWithThunk<P, V> => {
-  return actionCreatorsImpl<S, P, V, AsyncActionHandler<S, P, V>>(
+  return actionCreatorsImpl<S, P, V, M, AsyncActionHandler<S, P, V>>(
     type,
     handler,
   );

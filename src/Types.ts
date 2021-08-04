@@ -1,18 +1,16 @@
 import AsyncState from "./AsyncState";
 
+export type Meta = Record<string, any>;
+
+export type MetaUpdate<M extends Meta> = M | ((meta: M | null) => M);
+
+export type MetaOf<T extends AsyncState<any, any>> = T extends AsyncState<any, infer M> ? M : never;
+
 export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
 
 export type AsyncStateSubmitType = "submit" | "refresh";
 
-export enum AsyncStateActionType {
-  Reset   = "reset",
-  Submit  = "submit",
-  Refresh = "submit",
-  Reject  = "reject",
-  Resolve = "resolve",
-}
-
-export interface AsyncStateBase<T> {
+export interface AsyncStateBase<T, M extends Meta = any> {
   readonly defaultValue: T | undefined;
   readonly pending: boolean;
   readonly pendingAt: number | null;
@@ -27,14 +25,15 @@ export interface AsyncStateBase<T> {
   readonly submitType: AsyncStateSubmitType | undefined;
   readonly cancelled: boolean;
   readonly cancelledAt: number | null;
+  readonly meta: M | null;
 }
 
-export interface AsyncStateSettled<T> extends AsyncState<T> {
+export interface AsyncStateSettled<T, M extends Meta = any> extends AsyncState<T, M> {
   readonly settled: true;
   readonly settledAt: number;
 }
 
-export interface AsyncStateResolved<T> extends AsyncStateSettled<T> {
+export interface AsyncStateResolved<T, M extends Meta = any> extends AsyncStateSettled<T, M> {
   readonly resolved: true;
   readonly resolvedAt: number;
   readonly rejected: false;
@@ -43,7 +42,7 @@ export interface AsyncStateResolved<T> extends AsyncStateSettled<T> {
   readonly error: undefined;
 }
 
-export interface AsyncStateRejected<T> extends AsyncStateSettled<T> {
+export interface AsyncStateRejected<T, M extends Meta = any> extends AsyncStateSettled<T, M> {
   readonly resolved: false;
   readonly rejected: true;
   readonly rejectedAt: number;
@@ -51,32 +50,32 @@ export interface AsyncStateRejected<T> extends AsyncStateSettled<T> {
   readonly error: Error;
 }
 
-export interface AsyncStatePending<T> extends AsyncState<T> {
+export interface AsyncStatePending<T, M extends Meta = any> extends AsyncState<T, M> {
   readonly pending: true;
   readonly pendingAt: number;
   readonly submitType: AsyncStateSubmitType;
   readonly settled: false;
 }
 
-export interface AsyncStateCancelled<T> extends AsyncState<T> {
+export interface AsyncStateCancelled<T, M extends Meta = any> extends AsyncState<T, M> {
   readonly cancelled: true;
   readonly cancelledAt: number;
 }
 
 
-export interface AsyncStateSubmitting<T> extends AsyncStatePending<T> {
+export interface AsyncStateSubmitting<T, M extends Meta = any> extends AsyncStatePending<T, M> {
   readonly resolved: false;
   readonly rejected: false;
   readonly submitType: "submit";
 }
 
-export interface AsyncStateRefreshing<T> extends AsyncStatePending<T> {
+export interface AsyncStateRefreshing<T, M extends Meta = any> extends AsyncStatePending<T, M> {
   readonly resolved: boolean;
   readonly rejected: boolean;
   readonly submitType: "refresh";
 }
 
-export interface AsyncStatePristine<T> extends AsyncState<T> {
+export interface AsyncStatePristine<T, M extends Meta = any> extends AsyncState<T, M> {
   readonly pending: false;
   readonly resolved: false;
   readonly rejected: false;

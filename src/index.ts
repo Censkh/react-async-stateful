@@ -5,7 +5,6 @@ export {AsyncStateGroup} from "./AsyncStateGroup";
 
 export * from "./Types";
 export * from "./Utils";
-export * from "./StatefulPromise";
 export * from "./Updater";
 
 export * from "./react";
