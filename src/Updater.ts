@@ -1,29 +1,30 @@
 import {Dispatch, SetStateAction} from "react";
 import AsyncState                 from "./AsyncState";
 import {PromiseOrAsyncFunction}   from "./Types";
+import AsyncStateGroup            from "./AsyncStateGroup";
 
 export interface UpdateAsyncStateOptions {
   refresh?: boolean;
   minimumPending?: number;
 }
 
-export const updateAsyncState = async <T>(setAsyncState: Dispatch<SetStateAction<AsyncState<T>>>,
-                                          promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
-                                          options?: UpdateAsyncStateOptions): Promise<AsyncState<T>> => {
+export const updateAsyncState = async <T, A extends AsyncState<T>>(setAsyncState: Dispatch<SetStateAction<A>>,
+                                                                   promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
+                                                                   options?: UpdateAsyncStateOptions): Promise<A> => {
   if (options?.refresh) {
     setAsyncState(currentState => {
-      return AsyncState.refresh(currentState);
+      return AsyncState.refresh(currentState) as A;
     });
   } else {
     setAsyncState(currentState => {
-      return AsyncState.submit(currentState);
+      return AsyncState.submit(currentState) as A;
     });
   }
 
-  let valueResolve: (state: AsyncState<T>) => void = () => {
+  let valueResolve: (state: A) => void = () => {
     throw new Error("This should never happen!");
   };
-  const valuePromise = new Promise<AsyncState<T>>(resolve => {
+  const valuePromise = new Promise<A>(resolve => {
     valueResolve = resolve;
   });
 
@@ -52,22 +53,54 @@ export const updateAsyncState = async <T>(setAsyncState: Dispatch<SetStateAction
     }
 
     setAsyncState(currentState => {
-      const updatedState = AsyncState.resolve(currentState, value);
+      const updatedState = AsyncState.resolve(currentState, value) as A;
       valueResolve(updatedState);
       return updatedState;
     });
   } catch (error) {
     setAsyncState(currentState => {
-      const updatedState = AsyncState.reject(currentState, error);
+      const updatedState = AsyncState.reject(currentState, error) as A;
       valueResolve(updatedState);
-      if (process.env.NODE_ENV === "development") {
-        console.error("[react-async-stateful] Updating async state failed:");
-        console.error(error);
-      }
+      console.error(`[react-async-stateful] Updating async state failed: ${error.toString()}`);
       return updatedState;
     });
   }
 
   // wait for react to have updated our state
   return await valuePromise;
+};
+
+export const updateAsyncStateElement = async <T extends K, A extends AsyncStateGroup<T, K>, K>(
+  stateGroup: A,
+  setAsyncState: Dispatch<SetStateAction<A>>,
+  key: K,
+  promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
+  options?: UpdateAsyncStateOptions): Promise<A> => {
+  let valueResolve: (state: A) => void = () => {
+    throw new Error("This should never happen!");
+  };
+  const valuePromise = new Promise<A>(resolve => {
+    valueResolve = resolve;
+  });
+
+  const promise =
+          typeof promiseOrAsyncFn === "function"
+            ? promiseOrAsyncFn()
+            : promiseOrAsyncFn;
+
+  const update = async () => {
+    const updateElement = (elementOrUpdater: AsyncState<T> | ((prevElement: AsyncState<T>) => AsyncState<T>)) => setAsyncState((prevState => {
+      const element = typeof elementOrUpdater === "function" ? elementOrUpdater(AsyncStateGroup.getOrCreateElement(prevState, key)) : elementOrUpdater;
+      const updatedState = AsyncStateGroup.setElement(prevState, key, element) as A;
+      if (updatedState.resolved || updatedState.rejected) {
+        valueResolve(updatedState);
+      }
+      return updatedState;
+    }));
+    await updateAsyncState(updateElement, promise, options);
+  };
+
+  update();
+
+  return valuePromise;
 };

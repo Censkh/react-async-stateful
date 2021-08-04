@@ -20,7 +20,7 @@ export type CreateOptionsPending = CreateOptions & {
   pending: true;
 };
 
-const DEFAULT_STATE: AsyncStateBase<any> = {
+export const DEFAULT_STATE: AsyncStateBase<any> = {
   defaultValue: undefined,
   error       : undefined,
   pending     : false,
@@ -37,7 +37,7 @@ const DEFAULT_STATE: AsyncStateBase<any> = {
   cancelledAt : null,
 };
 
-export default class AsyncState<T> implements AsyncStateBase<T> {
+export class AsyncState<T> implements AsyncStateBase<T> {
   readonly defaultValue: T | undefined = DEFAULT_STATE.defaultValue;
   readonly value: T | undefined = DEFAULT_STATE.value;
 
@@ -54,8 +54,7 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
   readonly cancelled = DEFAULT_STATE.cancelled;
   readonly cancelledAt = DEFAULT_STATE.cancelledAt;
 
-
-  private constructor() {
+  protected constructor() {
     // prevents new AsyncState()
   }
 
@@ -86,15 +85,16 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     }
 
     return Utils.assign({}, asyncState, {
-      error     : undefined,
-      cancelled : false,
-      pending   : false,
-      rejected  : false,
-      resolved  : true,
-      resolvedAt: Date.now(),
-      settled   : true,
-      settledAt : Date.now(),
-      value     : value,
+      error       : undefined,
+      cancelled   : false,
+      pending     : false,
+      rejected    : false,
+      resolved    : true,
+      resolvedAt  : Date.now(),
+      settled     : true,
+      settledAt   : Date.now(),
+      value       : value,
+      elementState: {},
     });
   }
 
@@ -147,6 +147,13 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
       settled   : false,
       submitType: "refresh",
     });
+  }
+
+  /**
+   * @description Alias for `refresh`
+   */
+  static pending<T>(asyncState: AsyncState<T>): AsyncState<T> {
+    return AsyncState.refresh(asyncState);
   }
 
   static getStatus<T>(asyncState: AsyncState<T>): AsyncStateStatus {
@@ -232,3 +239,5 @@ export default class AsyncState<T> implements AsyncStateBase<T> {
     return defaultValue;
   }
 }
+
+export default AsyncState;

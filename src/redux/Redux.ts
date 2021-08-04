@@ -22,6 +22,8 @@ const asyncStateReducer = (
       return AsyncState.submit(asyncState);
     case `${type}__REFRESH`:
       return AsyncState.refresh(asyncState);
+    case `${type}__PENDING`:
+      return AsyncState.pending(asyncState);
     case `${type}__RESOLVED`:
       return AsyncState.resolve(asyncState, action.payload);
     case `${type}__REJECTED`:
@@ -75,7 +77,7 @@ const actionCreatorsImpl = <S,
   V = any,
   H extends undefined | AsyncActionHandler<S, P, V> = undefined>(
   type: string,
-  handler: H,
+  handler?: H,
 ): H extends undefined
   ? AsyncActionCreators<P, V>
   : AsyncActionCreatorsWithThunk<P, V> => {

@@ -1,7 +1,12 @@
+## 0.9.0
+
+- `AsyncStateGroup` to allow efficient grouping of elements
+- improved error logging
+- add `pending` action to redux actions 
+
 ## 0.8.0
 
 ### Features: 
-- `useAsyncStateGroup` hook for a group of async states
 - `map` function
 
 ## 0.6.1
