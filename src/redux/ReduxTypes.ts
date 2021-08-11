@@ -10,7 +10,7 @@ export interface Action<P = any> {
 export type AsyncStateAction<P = any, E = void> = {
   type: string;
   payload: P;
-  extra: E | undefined;
+  extra?: E | undefined;
 };
 
 export interface ActionCreator<P = any, E = void> {
