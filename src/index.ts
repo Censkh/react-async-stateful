@@ -1,4 +1,4 @@
-import {AsyncState as _AsyncState}      from "./AsyncState";
+import {AsyncState as _AsyncState} from "./AsyncState";
 
 export {AsyncState}      from "./AsyncState";
 export {AsyncStateGroup} from "./AsyncStateGroup";

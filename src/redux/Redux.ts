@@ -6,14 +6,14 @@ import {
   AsyncStateAction,
   AsyncStateDispatch,
   AsyncStateThunk,
-}                       from "./ReduxTypes";
-import AsyncState       from "../AsyncState";
-import * as Utils         from "../Utils";
-import {Meta, MetaUpdate} from "../Types";
+}                                      from "./ReduxTypes";
+import AsyncState                      from "../AsyncState";
+import * as Utils                      from "../Utils";
+import {DefaultMeta, Meta, MetaUpdate} from "../Types";
 
 const asyncStateReducer = (
   type: string,
-  asyncState: AsyncState<any>,
+  asyncState: AsyncState<any, any>,
   action: AsyncStateAction,
 ): AsyncState<any> => {
   switch (action.type) {
@@ -77,12 +77,12 @@ const locks: Record<string, number> = {};
 const actionCreatorsImpl = <S,
   P = any,
   V = any,
-  M extends Meta = any,
-  H extends undefined | AsyncActionHandler<S, P, V> = undefined>(
+  M extends Meta = DefaultMeta,
+  H extends undefined | AsyncActionHandler<S, P, V, M> = undefined>(
   type: string,
   handler?: H,
 ): H extends undefined
-  ? AsyncActionCreators<P, V>
+  ? AsyncActionCreators<P, V, M>
   : AsyncActionCreatorsWithThunk<P, V, M> => {
   const creators: AsyncActionCreators<P, V, M> = Utils.assign(
     (payload: P) => {
@@ -147,17 +147,17 @@ const actionCreatorsImpl = <S,
   return creators as any;
 };
 
-export const asyncStateActionCreators = <S, P = any, V = any, M extends Meta = any>(
+export const asyncStateActionCreators = <S, P = any, V = any, M extends Meta = DefaultMeta>(
   type: string,
-): AsyncActionCreators<P, V> => {
+): AsyncActionCreators<P, V, M> => {
   return actionCreatorsImpl(type, undefined);
 };
 
-export const asyncStateActionCreatorsThunk = <S, P = any, V = any, M extends Meta = any>(
+export const asyncStateActionCreatorsThunk = <S, P = any, V = any, M extends Meta = DefaultMeta>(
   type: string,
-  handler?: AsyncActionHandler<S, P, V>,
-): AsyncActionCreatorsWithThunk<P, V> => {
-  return actionCreatorsImpl<S, P, V, M, AsyncActionHandler<S, P, V>>(
+  handler?: AsyncActionHandler<S, P, V, M>,
+): AsyncActionCreatorsWithThunk<P, V, M> => {
+  return actionCreatorsImpl<S, P, V, M, AsyncActionHandler<S, P, V, M>>(
     type,
     handler,
   );

@@ -1,4 +1,4 @@
-import {Meta, MetaUpdate} from "../Types";
+import {DefaultMeta, Meta, MetaUpdate} from "../Types";
 
 export type AsyncStateThunk = (dispatch: AsyncStateDispatch, getState: () => any) => void;
 
@@ -19,7 +19,7 @@ export interface ActionCreator<P = any, E = void> {
   type: string;
 }
 
-export interface AsyncActionCreators<P = any, V = any, M extends Meta = any> {
+export interface AsyncActionCreators<P = any, V = any, M extends Meta = DefaultMeta> {
   (payload: P): void;
 
   reset: ActionCreator<void>;
@@ -39,13 +39,13 @@ export interface AsyncActionCreators<P = any, V = any, M extends Meta = any> {
 
 export type AsyncStateDispatch = (action: Action | AsyncStateAction<any, any> | AsyncStateThunk) => Promise<any>;
 
-export interface AsyncActionWithThunk<P = any, V = any, M extends Meta = any> {
+export interface AsyncActionWithThunk<P = any, V = any, M extends Meta = DefaultMeta> {
   (payload: P): AsyncStateThunk;
 
   type: string;
 }
 
-export interface AsyncActionCreatorsWithThunk<P = any, V = any, M extends Meta = any>
+export interface AsyncActionCreatorsWithThunk<P = any, V = any, M extends Meta = DefaultMeta>
   extends Omit<AsyncActionCreators<P, V, M>, "submit" | "refresh"> {
   (payload: P): AsyncStateThunk;
 
@@ -54,8 +54,8 @@ export interface AsyncActionCreatorsWithThunk<P = any, V = any, M extends Meta =
   refresh: AsyncActionWithThunk<P, V, M>;
 }
 
-export type AsyncActionHandler<S, P, V> = (
-  action: AsyncStateAction<P, any>,
+export type AsyncActionHandler<S, P, V, M extends Meta = DefaultMeta> = (
+  action: AsyncStateAction<P, M>,
   dispatch: AsyncStateDispatch,
   getState: () => S,
 ) => Promise<V>;

@@ -15,7 +15,8 @@
     "semi": 1,
     "quotes": 1,
     "react/display-name": 0,
-    "@typescript-eslint/no-explicit-any": 0
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/ban-types": 0
   },
   "settings": {
     "react": {
