@@ -13,8 +13,8 @@ import {useAsyncState} from "react-async-stateful";
 const AsyncComponent = (props) => {
     const [submitResult, _, updateSubmitResult] = useAsyncState();    
 
-    const submit = useCallback(() => {
-        const {resolvedAt} = updateSubmitResult(async () => {
+    const submit = useCallback(async () => {
+        const {resolvedAt} = await updateSubmitResult(async () => {
             const response = await fetch("https://example.com/api/v1/squeal-loudly");
             return response.json();
         });
