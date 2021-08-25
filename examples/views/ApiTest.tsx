@@ -1,10 +1,12 @@
-import * as React          from "react";
-import {useCallback}       from "react";
-import AsyncState, {useAsyncState}     from "../..";
-import {FoodItem, getList} from "../api";
+import * as React                  from "react";
+import {useCallback, useState}     from "react";
+import AsyncState, {useAsyncState} from "../..";
+import {FoodItem, getList}         from "../api";
 
 const ApiTest: React.FC = () => {
-  const [list, _, updateList] = useAsyncState([] as FoodItem[]);
+  const [list, , updateList] = useAsyncState([] as FoodItem[]);
+  const [timeoutMs, setTimeoutMs] = useState(0);
+
   const submit = useCallback(
     (refresh: boolean) => {
       updateList(
@@ -13,10 +15,10 @@ const ApiTest: React.FC = () => {
           const response = await getList();
           return response.data;
         },
-        {refresh: refresh},
+        {refresh: refresh, timeout: timeoutMs},
       );
     },
-    [list],
+    [list, timeoutMs],
   );
 
   const reject = useCallback(() => {
@@ -37,6 +39,10 @@ const ApiTest: React.FC = () => {
       </a>
       <p>
         <b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span>
+        <br/>
+        <b>Timeout:</b> <input value={timeoutMs}
+                               onChange={(e) => setTimeoutMs(Number(e.target.value))}
+                               type={"number"}/>
       </p>
       <button disabled={list.pending} onClick={() => submit(false)}>
         Submit

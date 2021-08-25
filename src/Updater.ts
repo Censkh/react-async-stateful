@@ -6,9 +6,10 @@ import AsyncStateGroup            from "./AsyncStateGroup";
 export interface UpdateAsyncStateOptions {
   refresh?: boolean;
   minimumPending?: number;
+  timeout?: number;
 }
 
-export const updateAsyncState = async <T, A extends AsyncState<T>>(setAsyncState: Dispatch<SetStateAction<A>>,
+export const updateAsyncState = async <T, A extends AsyncState<T, any>>(setAsyncState: Dispatch<SetStateAction<A>>,
                                                                    promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
                                                                    options?: UpdateAsyncStateOptions): Promise<A> => {
   if (options?.refresh) {
@@ -21,12 +22,40 @@ export const updateAsyncState = async <T, A extends AsyncState<T>>(setAsyncState
     });
   }
 
-  let valueResolve: (state: A) => void = () => {
+  let timeoutId: any = undefined;
+  let resolved = false;
+  let possiblyResolve: (stateUpdater: (state: AsyncState<T>) => AsyncState<T>) => boolean = () => {
     throw new Error("This should never happen!");
+    return false;
   };
+
   const valuePromise = new Promise<A>(resolve => {
-    valueResolve = resolve;
+    possiblyResolve = (stateUpdater) => {
+      if (resolved) {
+        return false;
+      }
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      resolved = true;
+      setAsyncState(currentState => {
+        const updatedState = stateUpdater(currentState) as A;
+        resolve(updatedState);
+        return updatedState;
+      });
+      return true;
+    };
   });
+
+  if (options?.timeout) {
+    timeoutId = setTimeout(() => {
+      const error = new Error(`[react-async-stateful] Async update timed out, took longer than ${options.timeout}ms`);
+      if (possiblyResolve(state => AsyncState.reject(state, error))) {
+        console.error(error);
+      }
+    }, options.timeout);
+  }
 
   try {
     const promise =
@@ -52,18 +81,11 @@ export const updateAsyncState = async <T, A extends AsyncState<T>>(setAsyncState
       value = null as any;
     }
 
-    setAsyncState(currentState => {
-      const updatedState = AsyncState.resolve(currentState, value) as A;
-      valueResolve(updatedState);
-      return updatedState;
-    });
+    possiblyResolve(state => AsyncState.resolve(state, value));
   } catch (error) {
-    setAsyncState(currentState => {
-      const updatedState = AsyncState.reject(currentState, error) as A;
-      valueResolve(updatedState);
-      console.error(`[react-async-stateful] Updating async state failed: ${error.toString()}`);
-      return updatedState;
-    });
+    if (possiblyResolve(state => AsyncState.reject(state, error))) {
+      console.error("[react-async-stateful] Updating async state failed", error);
+    }
   }
 
   // wait for react to have updated our state
