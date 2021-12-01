@@ -6,19 +6,21 @@ import {FoodItem, getList}         from "../api";
 const ApiTest: React.FC = () => {
   const [list, , updateList] = useAsyncState([] as FoodItem[]);
   const [timeoutMs, setTimeoutMs] = useState(0);
+  const [delayMs, setDelayMs] = useState(2500);
+  const [allowResbumit, setAllowResubmit] = useState(false);
 
   const submit = useCallback(
     (refresh: boolean) => {
       updateList(
         async () => {
-          await new Promise(resolve => setTimeout(resolve, 2500));
+          await new Promise(resolve => setTimeout(resolve, delayMs));
           const response = await getList();
           return response.data;
         },
         {refresh: refresh, timeout: timeoutMs},
       );
     },
-    [list, timeoutMs],
+    [list, timeoutMs, delayMs],
   );
 
   const reject = useCallback(() => {
@@ -43,14 +45,22 @@ const ApiTest: React.FC = () => {
         <b>Timeout:</b> <input value={timeoutMs}
                                onChange={(e) => setTimeoutMs(Number(e.target.value))}
                                type={"number"}/>
+        <br/>
+        <b>Delay:</b> <input value={delayMs}
+                             onChange={(e) => setDelayMs(Number(e.target.value))}
+                             type={"number"}/>
+        <br/>
+        <b>Allow Re-submit:</b> <input checked={allowResbumit}
+                             onChange={(e) => setAllowResubmit(Boolean(e.target.checked))}
+                             type={"checkbox"}/>
       </p>
-      <button disabled={list.pending} onClick={() => submit(false)}>
+      <button disabled={!allowResbumit && list.pending} onClick={() => submit(false)}>
         Submit
       </button>
-      <button disabled={list.pending} onClick={() => submit(true)}>
+      <button disabled={!allowResbumit && list.pending} onClick={() => submit(true)}>
         Refresh
       </button>
-      <button disabled={list.pending} onClick={() => reject()}>
+      <button disabled={!allowResbumit && list.pending} onClick={() => reject()}>
         Reject
       </button>
       <hr/>
@@ -65,7 +75,7 @@ const ApiTest: React.FC = () => {
           <b>
             List (retrieved at {new Date(list.resolvedAt).toLocaleString()}):
           </b>
-          <ul>
+          <ul className={"food-list"}>
             {list.value.map((value, index) => {
               return (
                 <li key={index}>
