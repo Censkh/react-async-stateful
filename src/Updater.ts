@@ -40,7 +40,6 @@ export const updateAsyncState = async <T, A extends AsyncState<T, any>>(setAsync
       setAsyncState(currentState => {
         if (currentState.pendingAt !== pendingAt) {
           // this state has been updated again since we started -- we are no longer in charge of resolving this state and shouldn't update it
-          console.error("Different update!!!!!");
           return currentState;
         }
 
