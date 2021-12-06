@@ -4,8 +4,11 @@ import {PromiseOrAsyncFunction}   from "./Types";
 import AsyncStateGroup            from "./AsyncStateGroup";
 
 export interface UpdateAsyncStateOptions {
+  /** do not reset value when submitting */
   refresh?: boolean;
+  /** minimum time to stay in pending state, will delay resolve until `minimumPending` ms */
   minimumPending?: number;
+  /** if update takes longer than `timeout` ms: reject */
   timeout?: number;
 }
 
