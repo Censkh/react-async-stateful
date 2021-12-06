@@ -1,3 +1,9 @@
+## 0.9.3
+
+### Fixes
+
+- fix bugged redux dependency in `peerDependencies`
+
 ## 0.9.0
 
 ### Breaking
