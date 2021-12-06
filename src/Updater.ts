@@ -13,22 +13,20 @@ export interface UpdateAsyncStateOptions {
 }
 
 export const updateAsyncState = async <T, A extends AsyncState<T, any>>(setAsyncState: Dispatch<SetStateAction<A>>,
-                                                                   promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
-                                                                   options?: UpdateAsyncStateOptions): Promise<A> => {
-  if (options?.refresh) {
-    setAsyncState(currentState => {
-      return AsyncState.refresh(currentState) as A;
-    });
-  } else {
-    setAsyncState(currentState => {
-      return AsyncState.submit(currentState) as A;
-    });
-  }
+                                                                        promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
+                                                                        options?: UpdateAsyncStateOptions): Promise<A> => {
+  let pendingAt: number | null = null;
+
+  setAsyncState(currentState => {
+    const newState = options?.refresh ? AsyncState.refresh(currentState) : AsyncState.submit(currentState);
+    pendingAt = newState.pendingAt;
+    return newState as A;
+  });
 
   let timeoutId: any = undefined;
   let resolved = false;
   let possiblyResolve: (stateUpdater: (state: AsyncState<T>) => AsyncState<T>) => boolean = () => {
-    throw new Error("This should never happen!");
+    throw new Error("[react-async-stateful] This should never happen!");
     return false;
   };
 
@@ -43,6 +41,11 @@ export const updateAsyncState = async <T, A extends AsyncState<T, any>>(setAsync
       }
       resolved = true;
       setAsyncState(currentState => {
+        if (currentState.pendingAt !== pendingAt) {
+          // this state has been updated again since we started -- we are no longer in charge of resolving this state and shouldn't update it
+          return currentState;
+        }
+
         const updatedState = stateUpdater(currentState) as A;
         resolve(updatedState);
         return updatedState;

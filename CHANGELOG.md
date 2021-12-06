@@ -7,11 +7,12 @@
 
 ### Changes
 
+- if another update occurs while one is already pending only display results for the last update that is submitted
 - add `timeout` to timeout long updates
 - add `meta` data to async states (eg. for when you want to store extra info about a state such as when it was cached)
-- `AsyncStateGroup` to allow efficient grouping of elements
 - improved error logging
 - add `pending` action to `AsyncState` and redux actions 
+- **Experimental**: *`AsyncStateGroup` to allow efficient grouping of elements*
 
 ## 0.8.0
 
