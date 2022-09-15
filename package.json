@@ -34,7 +34,12 @@
   ],
   "peerDependencies": {
     "react": ">=16.8.0",
-    "redux": "optional:>=4.0.0"
+    "redux": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "redux": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/classnames": "^2.2.10",

@@ -1,8 +1,14 @@
-## 0.9.3
+## 0.9.4
 
 ### Changes
 
 - better error display
+
+## 0.9.3
+
+### Fixes
+
+- fix bugged redux dependency in `peerDependencies`
 
 ## 0.9.0
 
