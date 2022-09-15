@@ -1,3 +1,9 @@
+## 0.9.3
+
+### Changes
+
+- better error display
+
 ## 0.9.0
 
 ### Breaking

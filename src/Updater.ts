@@ -10,6 +10,8 @@ export interface UpdateAsyncStateOptions {
   minimumPending?: number;
   /** if update takes longer than `timeout` ms: reject */
   timeout?: number;
+
+  errorDebug?: boolean,
 }
 
 export const updateAsyncState = async <T, A extends AsyncState<T, any>>(setAsyncState: Dispatch<SetStateAction<A>>,
@@ -90,7 +92,11 @@ export const updateAsyncState = async <T, A extends AsyncState<T, any>>(setAsync
     possiblyResolve(state => AsyncState.resolve(state, value));
   } catch (error) {
     if (possiblyResolve(state => AsyncState.reject(state, error))) {
-      console.error("[react-async-stateful] Updating async state failed", error);
+      console.error(`[react-async-stateful] Updating async state failed: ${error.stack || error.message}`);
+
+      if (options?.errorDebug) {
+        console.error(`[react-async-stateful] Error debug: ${JSON.stringify(error, null, 2)}`);
+      }
     }
   }
 
