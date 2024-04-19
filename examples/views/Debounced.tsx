@@ -1,52 +1,50 @@
 import type * as React from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import AsyncState, { useAsyncState } from "../../src";
 import { type FoodItem, getFoodList } from "../api";
 
-const MinimumPending = () => {
-  const [minimumPending, setMinimumPending] = useState(0);
+export const useDebouncedEffect = (effect: React.EffectCallback, deps: React.DependencyList, delay = 300) => {
+  let handler;
+  useEffect(() => {
+    clearTimeout(handler);
+    handler = setTimeout(() => {
+      effect();
+    }, delay);
 
+    return () => {
+      clearTimeout(handler);
+    };
+  }, deps);
+};
+
+const Debounced = () => {
   const [list, , updateList] = useAsyncState([] as FoodItem[]);
-  const submit = useCallback(
-    (refresh: boolean) => {
-      updateList(
-        async () => {
-          const response = await getFoodList();
-          return response.data;
-        },
-        { refresh: refresh, minimumPending: minimumPending },
-      );
-    },
-    [list, minimumPending],
-  );
+  const [search, setSearch] = useState("");
+  const updateListDebounced = updateList.useDebounced(500);
 
-  const reject = useCallback(() => {
-    updateList(async () => {
-      throw new Error("This is an API error");
-    });
-  }, [list]);
+  useEffect(() => {
+    updateListDebounced(
+      async () => {
+        const response = await getFoodList({
+          search,
+        });
+        return response.data;
+      },
+      { refresh: true },
+    );
+  }, [search]);
 
   return (
     <div>
-      <h3>Minimum Pending</h3>
-      <a href={"https://github.com/Censkh/react-async-stateful/blob/master/examples/views/MinimumPending.tsx"}>
+      <h3>Debounced</h3>
+      <a href={"https://github.com/Censkh/react-async-stateful/blob/master/examples/views/Debounced.tsx"}>
         Source Code
       </a>
       <p>
         <b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span>
         <br />
-        <b>Minimum Pending:</b>{" "}
-        <input value={minimumPending} onChange={(e) => setMinimumPending(Number(e.target.value))} type={"number"} />
+        <b>Search:</b> <input value={search} onChange={(e) => setSearch(e.target.value)} type={"text"} />
       </p>
-      <button disabled={list.pending} onClick={() => submit(false)}>
-        Submit
-      </button>
-      <button disabled={list.pending} onClick={() => submit(true)}>
-        Refresh
-      </button>
-      <button disabled={list.pending} onClick={() => reject()}>
-        Reject
-      </button>
       <hr />
       {AsyncState.isRejected(list) && (
         <div>
@@ -82,4 +80,4 @@ const MinimumPending = () => {
   );
 };
 
-export default MinimumPending;
+export default Debounced;

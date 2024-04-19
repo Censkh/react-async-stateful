@@ -1,5 +1,5 @@
-import AsyncState, {CreateOptions, CreateOptionsPending, DEFAULT_STATE} from "./AsyncState";
-import * as Utils                                                       from "./Utils";
+import AsyncState, { type CreateOptions, type CreateOptionsPending, DEFAULT_STATE } from "./AsyncState";
+import * as Utils from "./Utils";
 
 export interface AsyncStateGroupOptions<T extends K, K> {
   getKey: (key: K) => string;
@@ -7,7 +7,6 @@ export interface AsyncStateGroupOptions<T extends K, K> {
 }
 
 export class AsyncStateGroup<T extends K, K> extends AsyncState<Record<string, T>> {
-
   readonly elementState: Record<string, AsyncState<T>> = {};
 
   protected constructor(readonly options: AsyncStateGroupOptions<T, K>) {
@@ -26,9 +25,9 @@ export class AsyncStateGroup<T extends K, K> extends AsyncState<Record<string, T
 
     return Utils.assign({}, DEFAULT_STATE, {
       defaultValue: defaultValue,
-      value       : defaultValue,
-      pending     : options.pending || false,
-      options     : options,
+      value: defaultValue,
+      pending: options.pending || false,
+      options: options,
       elementState: {},
     }) as any;
   }
@@ -38,7 +37,7 @@ export class AsyncStateGroup<T extends K, K> extends AsyncState<Record<string, T
   }
 
   static getOrCreateElement<T extends K, K>(group: AsyncStateGroup<T, K>, key: K): AsyncState<T> {
-    const element = this.getElement(group, key);
+    const element = AsyncStateGroup.getElement(group, key);
     if (element) {
       return element;
     }
@@ -55,17 +54,21 @@ export class AsyncStateGroup<T extends K, K> extends AsyncState<Record<string, T
   }
 
   static resetElement<T extends K, K>(asyncStateGroup: AsyncStateGroup<T, K>, key: K): AsyncStateGroup<T, K> {
-    const state = this.getOrCreateElement(asyncStateGroup, key);
+    const state = AsyncStateGroup.getOrCreateElement(asyncStateGroup, key);
 
-    return this.setElement(asyncStateGroup, key, AsyncState.reset(state));
+    return AsyncStateGroup.setElement(asyncStateGroup, key, AsyncState.reset(state));
   }
 
-  static resolveElement<T extends K, K>(asyncStateGroup: AsyncStateGroup<T, K>, key: K, value: T): AsyncStateGroup<T, K> {
+  static resolveElement<T extends K, K>(
+    asyncStateGroup: AsyncStateGroup<T, K>,
+    key: K,
+    value: T,
+  ): AsyncStateGroup<T, K> {
     const keyId = asyncStateGroup.options.getKey(key);
-    const state = this.getOrCreateElement(asyncStateGroup, key);
+    const state = AsyncStateGroup.getOrCreateElement(asyncStateGroup, key);
 
     return Utils.assign({}, asyncStateGroup, {
-      value       : Utils.assign({}, asyncStateGroup.value, {
+      value: Utils.assign({}, asyncStateGroup.value, {
         [keyId]: value,
       }),
       elementState: Utils.assign({}, asyncStateGroup.elementState, {
@@ -74,30 +77,33 @@ export class AsyncStateGroup<T extends K, K> extends AsyncState<Record<string, T
     });
   }
 
-  static rejectElement<T extends K, K>(asyncStateGroup: AsyncStateGroup<T, K>, key: K, error: Error): AsyncStateGroup<T, K> {
-    const state = this.getOrCreateElement(asyncStateGroup, key);
+  static rejectElement<T extends K, K>(
+    asyncStateGroup: AsyncStateGroup<T, K>,
+    key: K,
+    error: Error,
+  ): AsyncStateGroup<T, K> {
+    const state = AsyncStateGroup.getOrCreateElement(asyncStateGroup, key);
 
-    return this.setElement(asyncStateGroup, key, AsyncState.reject(state, error));
+    return AsyncStateGroup.setElement(asyncStateGroup, key, AsyncState.reject(state, error));
   }
 
   static cancelElement<T extends K, K>(asyncStateGroup: AsyncStateGroup<T, K>, key: K): AsyncStateGroup<T, K> {
-    const state = this.getOrCreateElement(asyncStateGroup, key);
+    const state = AsyncStateGroup.getOrCreateElement(asyncStateGroup, key);
 
-    return this.setElement(asyncStateGroup, key, AsyncState.cancel(state));
+    return AsyncStateGroup.setElement(asyncStateGroup, key, AsyncState.cancel(state));
   }
 
   static submitElement<T extends K, K>(asyncStateGroup: AsyncStateGroup<T, K>, key: K): AsyncStateGroup<T, K> {
-    const state = this.getOrCreateElement(asyncStateGroup, key);
+    const state = AsyncStateGroup.getOrCreateElement(asyncStateGroup, key);
 
-    return this.setElement(asyncStateGroup, key, AsyncState.submit(state));
+    return AsyncStateGroup.setElement(asyncStateGroup, key, AsyncState.submit(state));
   }
 
   static refreshElement<T extends K, K>(asyncStateGroup: AsyncStateGroup<T, K>, key: K): AsyncStateGroup<T, K> {
-    const state = this.getOrCreateElement(asyncStateGroup, key);
+    const state = AsyncStateGroup.getOrCreateElement(asyncStateGroup, key);
 
-    return this.setElement(asyncStateGroup, key, AsyncState.refresh(state));
+    return AsyncStateGroup.setElement(asyncStateGroup, key, AsyncState.refresh(state));
   }
-
 }
 
 export default AsyncStateGroup;

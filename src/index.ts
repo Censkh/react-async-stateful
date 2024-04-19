@@ -1,13 +1,12 @@
-import {AsyncState as _AsyncState} from "./AsyncState";
+import { AsyncState as _AsyncState } from "./AsyncState";
 
-export {AsyncState}      from "./AsyncState";
-export {AsyncStateGroup} from "./AsyncStateGroup";
+export { AsyncState } from "./AsyncState";
+export { AsyncStateGroup } from "./AsyncStateGroup";
 
 export * from "./Types";
 export * from "./Utils";
 export * from "./Updater";
 
 export * from "./react";
-export * from "./redux";
 
 export default _AsyncState;

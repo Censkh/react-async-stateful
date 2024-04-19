@@ -1,4 +1,4 @@
-import {
+import type {
   AsyncStateBase,
   AsyncStateCancelled,
   AsyncStatePending,
@@ -11,9 +11,9 @@ import {
   MatchCases,
   Meta,
   MetaUpdate,
-}                    from "./Types";
-import * as Utils    from "./Utils";
-import {NotFunction} from "./Utils";
+} from "./Types";
+import * as Utils from "./Utils";
+import type { NotFunction } from "./Utils";
 
 export interface CreateOptions<M extends Meta = DefaultMeta> {
   pending?: boolean;
@@ -37,20 +37,20 @@ const resolveMetaUpdate = <M extends Meta>(meta: M | null, update: MetaUpdate<M>
 
 export const DEFAULT_STATE: AsyncStateBase<any> = {
   defaultValue: undefined,
-  error       : undefined,
-  pending     : false,
-  pendingAt   : null,
-  rejected    : false,
-  rejectedAt  : null,
-  resolved    : false,
-  resolvedAt  : null,
-  settled     : false,
-  settledAt   : null,
-  submitType  : undefined,
-  value       : undefined,
-  cancelled   : false,
-  cancelledAt : null,
-  meta        : null,
+  error: undefined,
+  pending: false,
+  pendingAt: null,
+  rejected: false,
+  rejectedAt: null,
+  resolved: false,
+  resolvedAt: null,
+  settled: false,
+  settledAt: null,
+  submitType: undefined,
+  value: undefined,
+  cancelled: false,
+  cancelledAt: null,
+  meta: null,
 };
 
 export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBase<T, M> {
@@ -70,7 +70,7 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
   readonly cancelled = DEFAULT_STATE.cancelled;
   readonly cancelledAt = DEFAULT_STATE.cancelledAt;
 
-  readonly meta = DEFAULT_STATE.meta as (M | null);
+  readonly meta = DEFAULT_STATE.meta as M | null;
 
   protected constructor() {
     // prevents new AsyncState()
@@ -81,10 +81,10 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     options: CreateOptionsPending<M> | CreateOptions<M> = {},
   ): AsyncState<T, M> {
     return Utils.assign({}, DEFAULT_STATE, {
-      meta        : options.meta || null,
+      meta: options.meta || null,
       defaultValue: defaultValue,
-      value       : defaultValue ?? undefined,
-      pending     : options.pending || false,
+      value: defaultValue ?? undefined,
+      pending: options.pending || false,
     });
   }
 
@@ -96,7 +96,11 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     return AsyncState.create(asyncState.defaultValue);
   }
 
-  static resolve<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>, value: T, metaUpdate?: MetaUpdate<M>): AsyncState<T, M> {
+  static resolve<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+    value: T,
+    metaUpdate?: MetaUpdate<M>,
+  ): AsyncState<T, M> {
     if (value === undefined) {
       throw new Error(
         "[react-async-stateful] Cannot resolve async asyncState to 'undefined', did you mean 'reset(asyncState)'?",
@@ -104,67 +108,67 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     }
 
     return Utils.assign({}, asyncState, {
-      error       : undefined,
-      cancelled   : false,
-      pending     : false,
-      rejected    : false,
-      resolved    : true,
-      resolvedAt  : Date.now(),
-      settled     : true,
-      settledAt   : Date.now(),
-      value       : value,
+      error: undefined,
+      cancelled: false,
+      pending: false,
+      rejected: false,
+      resolved: true,
+      resolvedAt: Date.now(),
+      settled: true,
+      settledAt: Date.now(),
+      value: value,
       elementState: {},
-      meta        : resolveMetaUpdate(asyncState.meta, metaUpdate),
+      meta: resolveMetaUpdate(asyncState.meta, metaUpdate),
     });
   }
 
   static reject<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>, error: Error): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
-      error     : error,
-      cancelled : false,
-      pending   : false,
-      rejected  : true,
+      error: error,
+      cancelled: false,
+      pending: false,
+      rejected: true,
       rejectedAt: Date.now(),
-      settled   : true,
-      settledAt : Date.now(),
-      resolved  : false,
-      value     : asyncState.defaultValue ?? undefined,
+      settled: true,
+      settledAt: Date.now(),
+      resolved: false,
+      value: asyncState.defaultValue ?? undefined,
     });
   }
 
   static cancel<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
-      error      : null,
-      cancelled  : true,
+      error: null,
+      cancelled: true,
       cancelledAt: Date.now(),
-      pending    : false,
-      rejected   : false,
-      settled    : false,
-      resolved   : false,
-      value      : asyncState.defaultValue ?? undefined,
+      pending: false,
+      rejected: false,
+      settled: false,
+      resolved: false,
+      value: asyncState.defaultValue ?? undefined,
     });
   }
 
   static submit<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
-      error     : null,
-      cancelled : false,
-      pending   : true,
-      pendingAt : Date.now(),
-      rejected  : false,
-      resolved  : false,
-      settled   : false,
-      value     : asyncState.defaultValue ?? undefined,
+      error: null,
+      cancelled: false,
+      pending: true,
+      pendingAt: Date.now(),
+      rejected: false,
+      resolved: false,
+      settled: false,
+      value: asyncState.defaultValue ?? undefined,
       submitType: "submit",
     });
   }
 
   static refresh<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
-      cancelled : false,
-      pending   : true,
-      pendingAt : Date.now(),
-      settled   : false,
+      cancelled: false,
+      pending: true,
+      pendingAt: Date.now(),
+      settled: false,
       submitType: "refresh",
     });
   }
@@ -193,27 +197,41 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     return "invalid";
   }
 
-  static isRejected<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): asyncState is AsyncStateRejected<T, M> {
+  static isRejected<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+  ): asyncState is AsyncStateRejected<T, M> {
     return asyncState.rejected;
   }
 
-  static isPending<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): asyncState is AsyncStatePending<T, M> {
+  static isPending<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+  ): asyncState is AsyncStatePending<T, M> {
     return asyncState.pending;
   }
 
-  static isResolved<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): asyncState is AsyncStateResolved<T, M> {
+  static isResolved<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+  ): asyncState is AsyncStateResolved<T, M> {
     return asyncState.resolved;
   }
 
-  static isCancelled<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): asyncState is AsyncStateCancelled<T, M> {
+  static isCancelled<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+  ): asyncState is AsyncStateCancelled<T, M> {
     return asyncState.cancelled;
   }
 
-  static isPristine<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): asyncState is AsyncStatePristine<T, M> {
-    return !AsyncState.isRejected(asyncState) && !AsyncState.isResolved(asyncState) && !AsyncState.isPending(asyncState);
+  static isPristine<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+  ): asyncState is AsyncStatePristine<T, M> {
+    return (
+      !AsyncState.isRejected(asyncState) && !AsyncState.isResolved(asyncState) && !AsyncState.isPending(asyncState)
+    );
   }
 
-  static isSettled<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): asyncState is AsyncStateSettled<T, M> {
+  static isSettled<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+  ): asyncState is AsyncStateSettled<T, M> {
     return asyncState.settled;
   }
 
@@ -233,25 +251,34 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     );
   }
 
-  static map<T, M extends Meta = DefaultMeta, R = T>(asyncState: AsyncState<T, M>, mapFunc: (value: T) => R, defaultValue?: R): AsyncState<R, M> {
-    const mapped: AsyncState<R, M> = this.clone(asyncState) as any;
-    if (this.isResolved(asyncState)) {
+  static map<T, M extends Meta = DefaultMeta, R = T>(
+    asyncState: AsyncState<T, M>,
+    mapFunc: (value: T) => R,
+    defaultValue?: R,
+  ): AsyncState<R, M> {
+    const mapped: AsyncState<R, M> = AsyncState.clone(asyncState) as any;
+    if (AsyncState.isResolved(asyncState)) {
       const result = mapFunc(asyncState.value);
-      Utils.assign(mapped, {value: result});
+      Utils.assign(mapped, { value: result });
     } else {
-      Utils.assign(mapped, {value: defaultValue});
+      Utils.assign(mapped, { value: defaultValue });
     }
     return mapped;
   }
 
-  static match<T, V extends NotFunction, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>, cases: MatchCases<T, V>, defaultValue: V): V {
+  static match<T, V extends NotFunction, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+    cases: MatchCases<T, V>,
+    defaultValue: V,
+  ): V {
     const status = AsyncState.getStatus(asyncState);
     if (status in cases) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value = cases[status] as any;
       if (status === "resolved") {
         return typeof value === "function" ? value(asyncState.value) : value;
-      } else if (status === "rejected") {
+      }
+      if (status === "rejected") {
         return typeof value === "function" ? value(asyncState.error) : value;
       }
       return value;
@@ -259,7 +286,10 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     return defaultValue;
   }
 
-  static updateMeta<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>, metaUpdate: MetaUpdate<M>): AsyncState<T, M> {
+  static updateMeta<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+    metaUpdate: MetaUpdate<M>,
+  ): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
       meta: resolveMetaUpdate(asyncState.meta, metaUpdate),
     });

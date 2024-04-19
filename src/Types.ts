@@ -1,4 +1,4 @@
-import AsyncState from "./AsyncState";
+import type AsyncState from "./AsyncState";
 
 export type DefaultMeta = {};
 
@@ -64,7 +64,6 @@ export interface AsyncStateCancelled<T, M extends Meta = DefaultMeta> extends As
   readonly cancelledAt: number;
 }
 
-
 export interface AsyncStateSubmitting<T, M extends Meta = DefaultMeta> extends AsyncStatePending<T, M> {
   readonly resolved: false;
   readonly rejected: false;
@@ -86,13 +85,7 @@ export interface AsyncStatePristine<T, M extends Meta = DefaultMeta> extends Asy
   readonly submitType: undefined;
 }
 
-export type AsyncStateStatus =
-  | "pristine"
-  | "submitting"
-  | "refreshing"
-  | "rejected"
-  | "resolved"
-  | "invalid";
+export type AsyncStateStatus = "pristine" | "submitting" | "refreshing" | "rejected" | "resolved" | "invalid";
 
 export type MatchCases<T, V> = {
   [K in AsyncStateStatus]?: K extends "resolved"

@@ -1,10 +1,11 @@
-import * as React                           from "react";
-import ApiTest                              from "./ApiTest";
-import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
-import Home           from "./Home";
+import type * as React from "react";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import ApiTest from "./ApiTest";
+import Debounced from "./Debounced";
+import Home from "./Home";
 import MinimumPending from "./MinimumPending";
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <div>
       <h2>react-asnyc-stateful Examples</h2>
@@ -19,13 +20,17 @@ const App: React.FC = () => {
           <li>
             <Link to={"/minimum-pending"}>Minimum Pending</Link>
           </li>
+          <li>
+            <Link to={"/debounced"}>Debounced</Link>
+          </li>
         </ul>
-        <hr/>
-        <Switch>
-          <Route path={"/api"} component={ApiTest}/>
-          <Route path={"/minimum-pending"} component={MinimumPending}/>
-          <Route path={"*"} component={Home}/>
-        </Switch>
+        <hr />
+        <Routes>
+          <Route path={"/api"} element={<ApiTest />} />
+          <Route path={"/debounced"} element={<Debounced />} />
+          <Route path={"/minimum-pending"} element={<MinimumPending />} />
+          <Route path={"*"} element={<Home />} />
+        </Routes>
       </BrowserRouter>
     </div>
   );

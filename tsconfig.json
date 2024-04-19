@@ -1,9 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["es6", "dom"],
     "moduleResolution": "node",
     "module": "esnext",
     "strict": true,
@@ -11,7 +8,5 @@
     "jsx": "react",
     "target": "ES5"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

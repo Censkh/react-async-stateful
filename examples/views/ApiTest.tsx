@@ -1,9 +1,9 @@
-import * as React                  from "react";
-import {useCallback, useState}     from "react";
-import AsyncState, {useAsyncState} from "../..";
-import {FoodItem, getList}         from "../api";
+import type * as React from "react";
+import { useCallback, useState } from "react";
+import AsyncState, { useAsyncState } from "../../src";
+import { type FoodItem, getFoodList } from "../api";
 
-const ApiTest: React.FC = () => {
+const ApiTest = () => {
   const [list, , updateList] = useAsyncState([] as FoodItem[]);
   const [timeoutMs, setTimeoutMs] = useState(0);
   const [delayMs, setDelayMs] = useState(2500);
@@ -13,11 +13,11 @@ const ApiTest: React.FC = () => {
     (refresh: boolean) => {
       updateList(
         async () => {
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-          const response = await getList();
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          const response = await getFoodList();
           return response.data;
         },
-        {refresh: refresh, timeout: timeoutMs},
+        { refresh: refresh, timeout: timeoutMs },
       );
     },
     [list, timeoutMs, delayMs],
@@ -32,27 +32,21 @@ const ApiTest: React.FC = () => {
   return (
     <div>
       <h3>Api Test</h3>
-      <a
-        href={
-          "https://github.com/Censkh/react-async-stateful/blob/master/examples/views/ApiTest.tsx"
-        }
-      >
-        Source Code
-      </a>
+      <a href={"https://github.com/Censkh/react-async-stateful/blob/master/examples/views/ApiTest.tsx"}>Source Code</a>
       <p>
         <b>Pending:</b> <span>{AsyncState.isPending(list).toString()}</span>
-        <br/>
-        <b>Timeout:</b> <input value={timeoutMs}
-                               onChange={(e) => setTimeoutMs(Number(e.target.value))}
-                               type={"number"}/>
-        <br/>
-        <b>Delay:</b> <input value={delayMs}
-                             onChange={(e) => setDelayMs(Number(e.target.value))}
-                             type={"number"}/>
-        <br/>
-        <b>Allow Re-submit:</b> <input checked={allowResbumit}
-                             onChange={(e) => setAllowResubmit(Boolean(e.target.checked))}
-                             type={"checkbox"}/>
+        <br />
+        <b>Timeout:</b>{" "}
+        <input value={timeoutMs} onChange={(e) => setTimeoutMs(Number(e.target.value))} type={"number"} />
+        <br />
+        <b>Delay:</b> <input value={delayMs} onChange={(e) => setDelayMs(Number(e.target.value))} type={"number"} />
+        <br />
+        <b>Allow Re-submit:</b>{" "}
+        <input
+          checked={allowResbumit}
+          onChange={(e) => setAllowResubmit(Boolean(e.target.checked))}
+          type={"checkbox"}
+        />
       </p>
       <button disabled={!allowResbumit && list.pending} onClick={() => submit(false)}>
         Submit
@@ -63,25 +57,23 @@ const ApiTest: React.FC = () => {
       <button disabled={!allowResbumit && list.pending} onClick={() => reject()}>
         Reject
       </button>
-      <hr/>
+      <hr />
       {AsyncState.isRejected(list) && (
         <div>
           <b>Error: </b> <span>{list.error.message}</span>
-          <br/>
+          <br />
         </div>
       )}
       {AsyncState.isResolved(list) ? (
         <div>
-          <b>
-            List (retrieved at {new Date(list.resolvedAt).toLocaleString()}):
-          </b>
+          <b>List (retrieved at {new Date(list.resolvedAt).toLocaleString()}):</b>
           <ul className={"food-list"}>
             {list.value.map((value, index) => {
               return (
                 <li key={index}>
                   <span
                     style={{
-                      width  : "26px",
+                      width: "26px",
                       display: "inline-block",
                     }}
                   >

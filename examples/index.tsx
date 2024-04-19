@@ -1,7 +1,7 @@
-import * as React    from "react";
-import * as ReactDOM from "react-dom";
-import App           from "./views/App";
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import App from "./views/App";
 
 window.onload = () => {
-  ReactDOM.render(<App/>, document.body.querySelector("#root"));
+  ReactDOM.createRoot(document.body.querySelector("#root")).render(<App />);
 };

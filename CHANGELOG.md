@@ -1,3 +1,14 @@
+## 0.10.0
+
+### Breaking
+
+- remove redux support
+- remove experimental recoil support
+
+### Features
+
+- add `useDebounced` to update function
+
 ## 0.9.4
 
 ### Changes

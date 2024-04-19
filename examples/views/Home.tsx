@@ -1,16 +1,8 @@
-import * as React from "react";
-import Markdown   from "react-markdown";
+import type * as React from "react";
+import ReadMe from "../../README.md";
 
-import {readFileSync} from "fs";
-
-const readme = readFileSync("./README.md", "utf-8");
-
-const Home: React.FC = () => {
-  return (
-    <div>
-      <Markdown source={readme}/>
-    </div>
-  );
+const Home = () => {
+  return <ReadMe />;
 };
 
 export default Home;

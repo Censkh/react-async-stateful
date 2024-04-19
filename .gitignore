@@ -3,4 +3,5 @@ node_modules
 cjs
 esm
 public
-.cache
+.parcel-cache
+dist
