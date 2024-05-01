@@ -25,11 +25,13 @@ export function useAsyncState<T>(
 ): UseAsyncStateResult<T> {
   const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue, options));
 
-  const updateFn = useMemo(() => {
+  const updateFn = useRef<UpdateAsyncStateFunction<T>>();
+
+  if (!updateFn.current) {
     const updateFnInternal: UpdateAsyncStateFunctionInternal<T> = (promiseOrAsyncFn, options) =>
       updateAsyncState(setAsyncState, promiseOrAsyncFn, options);
 
-    return Object.assign(updateFnInternal, {
+    updateFn.current = Object.assign(updateFnInternal, {
       useDebounced: (delay: number) => {
         const handlerRef = useRef<any>();
         const debouncedFn = useRef(((promiseOrAsyncFn, options) => {
@@ -46,9 +48,9 @@ export function useAsyncState<T>(
         return debouncedFn.current;
       },
     }) satisfies UpdateAsyncStateFunction<T>;
-  }, []);
+  }
 
-  return [asyncState, setAsyncState, updateFn];
+  return [asyncState, setAsyncState, updateFn.current];
 }
 
 export type UpdateAsyncStateGroupFunction<T, K extends string | number> = (

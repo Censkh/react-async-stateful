@@ -12,8 +12,8 @@ import type {
   Meta,
   MetaUpdate,
 } from "./Types";
-import * as Utils from "./Utils";
 import type { NotFunction } from "./Utils";
+import * as Utils from "./Utils";
 
 export interface CreateOptions<M extends Meta = DefaultMeta> {
   pending?: boolean;
@@ -149,7 +149,12 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
     });
   }
 
-  static submit<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): AsyncState<T, M> {
+  static submit<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+    options?: {
+      pendingAt?: number;
+    },
+  ): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
       error: null,
       cancelled: false,
@@ -160,16 +165,23 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
       settled: false,
       value: asyncState.defaultValue ?? undefined,
       submitType: "submit",
+      ...options,
     });
   }
 
-  static refresh<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): AsyncState<T, M> {
+  static refresh<T, M extends Meta = DefaultMeta>(
+    asyncState: AsyncState<T, M>,
+    options?: {
+      pendingAt?: number;
+    },
+  ): AsyncState<T, M> {
     return Utils.assign({}, asyncState, {
       cancelled: false,
       pending: true,
       pendingAt: Date.now(),
       settled: false,
       submitType: "refresh",
+      ...options,
     });
   }
 

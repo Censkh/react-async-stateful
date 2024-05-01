@@ -1,6 +1,6 @@
 {
   "name": "react-async-stateful",
-  "version": "0.10.0-alpha.1",
+  "version": "0.10.0-alpha.7",
   "description": "Declarative async state to reduce boilerplate",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
@@ -13,8 +13,8 @@
     "cleanup": "rimraf esm && rimraf cjs",
     "test": "echo \"No tests yet\" && exit 0",
     "build": "npm run cleanup && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc --module es2015 --target es5 --outDir esm",
-    "build:cjs": "tsc --module commonjs --target es5 --outDir cjs",
+    "build:esm": "tsc --module es2015 --outDir esm",
+    "build:cjs": "tsc --module commonjs --outDir cjs",
     "build:watch": "npm-run-all -p \"build:esm -- -w\" \"build:cjs -- -w\"",
     "example:dev": "parcel examples/index.html --out-dir ./public",
     "example:build": "parcel build examples/index.html --out-dir ./public"

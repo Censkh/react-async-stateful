@@ -19,11 +19,16 @@ export const updateAsyncState = async <T, A extends AsyncState<T, any>>(
   promiseOrAsyncFn: PromiseOrAsyncFunction<T>,
   options?: UpdateAsyncStateOptions,
 ): Promise<A> => {
-  let pendingAt: number | null = null;
+  const pendingAt = Date.now();
 
   setAsyncState((currentState) => {
-    const newState = options?.refresh ? AsyncState.refresh(currentState) : AsyncState.submit(currentState);
-    pendingAt = newState.pendingAt;
+    const newState = options?.refresh
+      ? AsyncState.refresh(currentState, {
+          pendingAt,
+        })
+      : AsyncState.submit(currentState, {
+          pendingAt,
+        });
     return newState as A;
   });
 
