@@ -1,3 +1,5 @@
+"use client";
+
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AsyncState, { type CreateOptions, type CreateOptionsPending } from "../AsyncState";
 import type { PromiseOrAsyncFunction } from "../Types";

@@ -1,6 +1,6 @@
 {
   "name": "react-async-stateful",
-  "version": "0.10.0-alpha.7",
+  "version": "0.10.1",
   "description": "Declarative async state to reduce boilerplate",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
@@ -24,15 +24,15 @@
   "license": "MIT",
   "files": ["LICENSE", "README.md", "esm/", "cjs/"],
   "peerDependencies": {
-    "react": "18.2.0"
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",
-    "@types/node": "^20.12.7",
-    "@types/react": "18.2.79",
-    "@types/react-dom": "^18.2.25",
+    "@types/node": "^20.14.2",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "^18.3.0",
     "npm-run-all": "^4.1.5",
-    "rimraf": "5.0.5",
+    "rimraf": "5.0.7",
     "typescript": "^5.4.5"
   },
   "repository": "https://github.com/Censkh/react-async-stateful"

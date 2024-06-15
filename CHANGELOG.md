@@ -1,3 +1,7 @@
+## 0.10.1
+
+- add `use client` directive
+
 ## 0.10.0
 
 ### Breaking
