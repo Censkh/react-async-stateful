@@ -37,6 +37,7 @@ export function useAsyncState<T>(
       useDebounced: (delay: number) => {
         const handlerRef = useRef<any>();
         const debouncedFn = useRef(((promiseOrAsyncFn, options) => {
+          setAsyncState(options?.refresh ? AsyncState.refresh : AsyncState.submit);
           clearTimeout(handlerRef.current);
           handlerRef.current = setTimeout(() => {
             updateFnInternal(promiseOrAsyncFn, options);

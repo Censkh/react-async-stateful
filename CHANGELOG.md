@@ -1,3 +1,13 @@
+## 0.11.0
+
+### Breaking
+
+- `useDebounced` now immediately triggers pending state
+
+### Changes
+
+- deprecated `AsyncState.pending`
+
 ## 0.10.1
 
 - add `use client` directive

@@ -187,6 +187,8 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
 
   /**
    * @description Alias for `refresh`
+   *
+   * @deprecated - use `refresh` instead
    */
   static pending<T, M extends Meta = DefaultMeta>(asyncState: AsyncState<T, M>): AsyncState<T, M> {
     return AsyncState.refresh(asyncState);
