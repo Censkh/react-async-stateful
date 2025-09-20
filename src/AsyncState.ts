@@ -12,7 +12,7 @@ import type {
   Meta,
   MetaUpdate,
 } from "./Types";
-import type { NotFunction } from "./Utils";
+import { ASYNC_STATE_SYMBOL, type NotFunction } from "./Utils";
 import * as Utils from "./Utils";
 
 export interface CreateOptions<M extends Meta = DefaultMeta> {
@@ -36,6 +36,7 @@ const resolveMetaUpdate = <M extends Meta>(meta: M | null, update: MetaUpdate<M>
 };
 
 export const DEFAULT_STATE: AsyncStateBase<any> = {
+  [ASYNC_STATE_SYMBOL]: true,
   defaultValue: undefined,
   error: undefined,
   pending: false,
@@ -53,7 +54,14 @@ export const DEFAULT_STATE: AsyncStateBase<any> = {
   meta: null,
 };
 
+export const isAsyncState = (asyncState: any): asyncState is AsyncState<any> => {
+  return asyncState?.[ASYNC_STATE_SYMBOL];
+};
+
 export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBase<T, M> {
+  // @ts-ignore
+  [ASYNC_STATE_SYMBOL]: true;
+
   readonly defaultValue: T | undefined = DEFAULT_STATE.defaultValue;
   readonly value: T | undefined = DEFAULT_STATE.value;
 
@@ -268,14 +276,13 @@ export class AsyncState<T, M extends Meta = DefaultMeta> implements AsyncStateBa
   static map<T, M extends Meta = DefaultMeta, R = T>(
     asyncState: AsyncState<T, M>,
     mapFunc: (value: T) => R,
-    defaultValue?: R,
   ): AsyncState<R, M> {
     const mapped: AsyncState<R, M> = AsyncState.clone(asyncState) as any;
-    if (AsyncState.isResolved(asyncState)) {
-      const result = mapFunc(asyncState.value);
-      Utils.assign(mapped, { value: result });
-    } else {
-      Utils.assign(mapped, { value: defaultValue });
+    if (typeof asyncState.defaultValue !== "undefined") {
+      Utils.assign(mapped, { defaultValue: mapFunc(asyncState.defaultValue) });
+    }
+    if (typeof asyncState.value !== "undefined") {
+      Utils.assign(mapped, { value: mapFunc(asyncState.value) });
     }
     return mapped;
   }

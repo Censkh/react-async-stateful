@@ -1,3 +1,5 @@
+export const ASYNC_STATE_SYMBOL = "isAsyncState" as const;
+
 export type NotFunction = any & {
   (): never;
   call: never;

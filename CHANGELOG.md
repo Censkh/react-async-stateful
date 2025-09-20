@@ -1,3 +1,9 @@
+## 0.12.0
+
+### Breaking
+
+- change behaviour of `AsyncState.map` to map both `defaultValue` and `value`
+
 ## 0.11.0
 
 ### Breaking

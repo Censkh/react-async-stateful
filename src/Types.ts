@@ -1,4 +1,5 @@
 import type AsyncState from "./AsyncState";
+import { ASYNC_STATE_SYMBOL } from "./Utils";
 
 export type DefaultMeta = {};
 
@@ -13,6 +14,8 @@ export type PromiseOrAsyncFunction<T> = Promise<T> | (() => Promise<T>);
 export type AsyncStateSubmitType = "submit" | "refresh";
 
 export interface AsyncStateBase<T, M extends Meta = DefaultMeta> {
+  [ASYNC_STATE_SYMBOL]: true;
+
   readonly defaultValue: T | undefined;
   readonly pending: boolean;
   readonly pendingAt: number | null;
