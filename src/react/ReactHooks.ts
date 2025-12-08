@@ -21,26 +21,34 @@ export type UseAsyncStateResult<T> = [
   UpdateAsyncStateFunction<T>,
 ];
 
-export function useAsyncState<T>(
-  defaultValue?: T,
-  options?: CreateOptionsPending | CreateOptions,
-): UseAsyncStateResult<T> {
-  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue, options));
+type UseAsyncStateInternalOptions<T> = {
+  value: AsyncState<T>;
+  set: Dispatch<SetStateAction<AsyncState<T>>>;
+};
 
+type UseSyncedAsyncStateOptions<T> = {
+  value: AsyncState<T>;
+  set: Dispatch<SetStateAction<AsyncState<T>>>;
+};
+
+const useAsyncStateInternal = <T>(options: UseAsyncStateInternalOptions<T>): UseAsyncStateResult<T> => {
+  "use no memo";
   const updateFn = useRef<UpdateAsyncStateFunction<T>>();
 
   if (!updateFn.current) {
-    const updateFnInternal: UpdateAsyncStateFunctionInternal<T> = (promiseOrAsyncFn, options) =>
-      updateAsyncState(setAsyncState, promiseOrAsyncFn, options);
+    const updateFnInternal: UpdateAsyncStateFunctionInternal<T> = (promiseOrAsyncFn, updateOptions) =>
+      updateAsyncState(options.set, promiseOrAsyncFn, updateOptions);
 
     updateFn.current = Object.assign(updateFnInternal, {
       useDebounced: (delay: number) => {
         const handlerRef = useRef<any>();
-        const debouncedFn = useRef(((promiseOrAsyncFn, options) => {
-          setAsyncState(options?.refresh ? AsyncState.refresh : AsyncState.submit);
+        const debouncedFn = useRef(((promiseOrAsyncFn, updateOptions) => {
+          options.set((currentState) =>
+            updateOptions?.refresh ? AsyncState.refresh(currentState) : AsyncState.submit(currentState),
+          );
           clearTimeout(handlerRef.current);
           handlerRef.current = setTimeout(() => {
-            updateFnInternal(promiseOrAsyncFn, options);
+            updateFnInternal(promiseOrAsyncFn, updateOptions);
           }, delay);
         }) as UpdateAsyncStateFunctionInternal<T>);
         useEffect(() => {
@@ -53,7 +61,22 @@ export function useAsyncState<T>(
     }) satisfies UpdateAsyncStateFunction<T>;
   }
 
-  return [asyncState, setAsyncState, updateFn.current];
+  return [options.value, options.set, updateFn.current];
+};
+
+export function useAsyncState<T>(
+  defaultValue?: T,
+  options?: CreateOptionsPending | CreateOptions,
+): UseAsyncStateResult<T> {
+  const [asyncState, setAsyncState] = useState<AsyncState<T>>(AsyncState.create(defaultValue, options));
+  return useAsyncStateInternal({
+    value: asyncState,
+    set: setAsyncState,
+  });
+}
+
+export function useSyncedAsyncState<T>(options: UseSyncedAsyncStateOptions<T>): UseAsyncStateResult<T> {
+  return useAsyncStateInternal(options);
 }
 
 export type UpdateAsyncStateGroupFunction<T, K extends string | number> = (

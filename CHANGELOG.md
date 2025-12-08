@@ -1,3 +1,10 @@
+## 0.13.0
+
+### Features
+
+- add `useSyncedAsyncState` hook for syncing with external async state
+- refactor `useAsyncState` and `useSyncedAsyncState` to use shared internal `useAsyncStateInternal` implementation
+
 ## 0.12.0
 
 ### Breaking
